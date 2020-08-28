@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Bulletin_Server
 {
-    internal class Program
+    internal class Server
     {
         static void Main(string[] args)
         {

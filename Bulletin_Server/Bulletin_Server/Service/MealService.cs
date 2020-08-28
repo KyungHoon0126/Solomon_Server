@@ -3,22 +3,14 @@ using Bulletin_Server.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.ServiceModel;
-using System.ServiceModel.Web;
 using System.Text;
-using System.Threading.Tasks;
 using hap = HtmlAgilityPack;
 
 namespace Bulletin_Server.Service
 {
-    public class BulletinService : IService
+    public class MealService : IService
     {
-        [OperationContract]
-        [WebInvoke(Method = "GET", ResponseFormat = WebMessageFormat.Json, 
-                   BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/meal")]
         public Response<MealInfo> GetMealData()
         {
             WebClient webClient = new WebClient();

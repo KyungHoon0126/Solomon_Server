@@ -1,17 +1,15 @@
 ﻿using Bulletin_Server.Model.Meal;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.ServiceModel;
-using System.Text;
-using System.Threading.Tasks;
+using System.ServiceModel.Web;
 
 namespace Bulletin_Server
 {
     [ServiceContract]
     public interface IService
     {
+        [OperationContract]
+        [WebInvoke(Method = "GET", ResponseFormat = WebMessageFormat.Json,
+                   BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/meal")]
         Response<MealInfo> GetMealData();
     }
 
