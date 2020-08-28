@@ -1,4 +1,5 @@
 ﻿using Bulletin_Server.Model.Meal;
+using Bulletin_Server.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -18,7 +19,7 @@ namespace Bulletin_Server.Service
         [OperationContract]
         [WebInvoke(Method = "GET", ResponseFormat = WebMessageFormat.Json, 
                    BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/meal")]
-        public Task GetMealData()
+        public Response<MealInfo> GetMealData()
         {
             WebClient webClient = new WebClient();
             webClient.Headers["Content-Type"] = "application/json";
@@ -29,9 +30,25 @@ namespace Bulletin_Server.Service
             document.LoadHtml(html);
             JObject jObject = JObject.Parse(document.Text);
             MealInfo mealData = JsonConvert.DeserializeObject<MealInfo>(jObject.ToString());
-            List<Row> rowItems = new List<Row>();
-            
-            return null;
+            for (int i = 0; i < mealData.meal.Count; i++)
+            {
+                if (mealData.meal[i].row == null)
+                {
+                    mealData.meal.Remove(mealData.meal[i]);
+                }
+            }
+            if (mealData == null || mealData.meal.Count < 0)
+            {
+                Console.WriteLine("급식 : " + ResponseStatus.NotFound);
+                var resp = new Response<MealInfo> { data = mealData, message = "급식 설정이 필요합니다.", status = HttpStatusCode.NotFound };
+                return resp;
+            }
+            else
+            {
+                Console.WriteLine("급식 : " + ResponseStatus.OK);
+                var resp = new Response<MealInfo> { data = mealData, message = "급식 조회에 성공하였습니다.", status = HttpStatusCode.OK };
+                return resp;
+            }
         }
     }
 }
