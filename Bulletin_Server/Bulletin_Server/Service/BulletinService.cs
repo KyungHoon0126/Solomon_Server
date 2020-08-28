@@ -40,13 +40,13 @@ namespace Bulletin_Server.Service
             if (mealData == null || mealData.meal.Count < 0)
             {
                 Console.WriteLine("급식 : " + ResponseStatus.NotFound);
-                var resp = new Response<MealInfo> { data = mealData, message = "급식 설정이 필요합니다.", status = HttpStatusCode.NotFound };
+                var resp = new Response<MealInfo> { data = mealData, message = "급식 설정이 필요합니다.", status = ResponseStatus.NotFound };
                 return resp;
             }
             else
             {
                 Console.WriteLine("급식 : " + ResponseStatus.OK);
-                var resp = new Response<MealInfo> { data = mealData, message = "급식 조회에 성공하였습니다.", status = HttpStatusCode.OK };
+                var resp = new Response<MealInfo> { data = mealData, message = "급식 조회에 성공하였습니다.", status = ResponseStatus.OK };
                 return resp;
             }
         }

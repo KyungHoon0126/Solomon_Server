@@ -12,13 +12,13 @@ namespace Bulletin_Server
     [ServiceContract]
     public interface IService
     {
-        Task GetMealData();
+        Response<MealInfo> GetMealData();
     }
 
     public class Response<T>
     {
         public string message { get; set; }
-        public HttpStatusCode status { get; set; }
+        public int status { get; set; }
         public T data { get; set; }
     }
 }
