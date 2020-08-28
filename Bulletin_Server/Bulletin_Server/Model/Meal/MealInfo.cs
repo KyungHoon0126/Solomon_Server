@@ -1,12 +1,20 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Prism.Mvvm;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bulletin_Server.Model.Meal
 {
-    class MealInfo
+    public class MealInfo : BindableBase
     {
+        private List<MealServiceDietInfo> Meal;
+        [JsonProperty("mealServiceDietInfo")]
+        public List<MealServiceDietInfo> meal
+        {
+            get => Meal;
+            set
+            {
+                SetProperty(ref Meal, value);
+            }
+        }
     }
 }
