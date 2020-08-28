@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bulletin_Server.Model.Meal;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -11,7 +12,7 @@ namespace Bulletin_Server
     [ServiceContract]
     public interface IService
     {
-
+        Task GetMealData();
     }
 
     public class Response<T>
