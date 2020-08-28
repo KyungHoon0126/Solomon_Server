@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Newtonsoft.Json;
 
 namespace Bulletin_Server.Model.Meal
 {
-    class Result
+    public class Result
     {
+        [JsonProperty("CODE")]
+        public string Code { get; set; }
+
+        [JsonProperty("MESSAGE")]
+        public string Message { get; set; }
     }
 }
