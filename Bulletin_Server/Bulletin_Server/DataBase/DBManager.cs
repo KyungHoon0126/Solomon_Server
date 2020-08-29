@@ -10,15 +10,16 @@ namespace Bulletin_Server.DataBase
 {
     public class DBManager<T>
     {
-        public static List<T> GetList(IDbConnection conn, IDbTransaction tran, string search)
+        public List<T> GetList(IDbConnection conn, IDbTransaction tran, string search)
         {
             string sql = @"";
             return SqlMapper.Query<T>(conn, sql, new { search = search }).ToList();
         }
 
-        public int Insert(IDbConnection conn , IDbTransaction tran = null)
+        public async Task<T> Insert(IDbConnection conn , IDbTransaction tran = null)
         {
-            return SqlMapper.Execute(conn, "insert query", this, tran);
+            var resp = await SqlMapper.ExecuteAsync(conn, "insert query", this, tran);
+            return resp;
         }
 
         public int Update(IDbConnection conn, IDbTransaction tran = null)

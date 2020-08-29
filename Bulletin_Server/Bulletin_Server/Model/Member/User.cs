@@ -8,6 +8,6 @@ namespace Bulletin_Server.Model.Member
 {
     public class User
     {
-
+        
     }
 }
