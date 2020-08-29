@@ -12,7 +12,7 @@ namespace Bulletin_Server
     {
         static void Main(string[] args)
         {
-            var server = new WebServiceHost(typeof(Service.BulletinService));
+            var server = new WebServiceHost(typeof(Service.MealService, tyepof(Service.BulletinService));
             server.AddServiceEndpoint(typeof(IService), new WebHttpBinding(), "");
             server.Open();
             Console.WriteLine("Bulletin Server Start");
