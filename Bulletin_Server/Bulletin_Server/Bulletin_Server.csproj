@@ -39,6 +39,15 @@
     <Reference Include="HtmlAgilityPack, Version=1.11.24.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
       <HintPath>..\packages\HtmlAgilityPack.1.11.24\lib\Net45\HtmlAgilityPack.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.IdentityModel.JsonWebTokens, Version=6.7.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.IdentityModel.JsonWebTokens.6.7.1\lib\net461\Microsoft.IdentityModel.JsonWebTokens.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.Logging, Version=6.7.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.IdentityModel.Logging.6.7.1\lib\net461\Microsoft.IdentityModel.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.Tokens, Version=6.7.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.IdentityModel.Tokens.6.7.1\lib\net461\Microsoft.IdentityModel.Tokens.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -47,6 +56,9 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.IdentityModel.Tokens.Jwt, Version=6.7.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IdentityModel.Tokens.Jwt.6.7.1\lib\net461\System.IdentityModel.Tokens.Jwt.dll</HintPath>
+    </Reference>
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.ServiceModel.Web" />
     <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -61,16 +73,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataBase\DBManager.cs" />
+    <Compile Include="DataBase\ModelBase.cs" />
     <Compile Include="Interface\IService.cs" />
-    <Compile Include="Model\Meal\Head.cs" />
-    <Compile Include="Model\Meal\MealInfo.cs" />
-    <Compile Include="Model\Meal\MealServiceDietInfo.cs" />
-    <Compile Include="Model\Meal\Result.cs" />
-    <Compile Include="Model\Meal\Row.cs" />
-    <Compile Include="Model\Member\User.cs" />
+    <Compile Include="JWT\Models\IAuthContainerModel.cs" />
+    <Compile Include="Models\Meal\Head.cs" />
+    <Compile Include="Models\Meal\MealInfo.cs" />
+    <Compile Include="Models\Meal\MealServiceDietInfo.cs" />
+    <Compile Include="Models\Meal\Result.cs" />
+    <Compile Include="Models\Meal\Row.cs" />
+    <Compile Include="Models\Member\User.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Service\MealService.cs" />
+    <Compile Include="Services\MealService.cs" />
+    <Compile Include="Services\MemberService.cs" />
     <Compile Include="Utils\ResponseStatus.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -78,7 +93,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Model\Bulletin\" />
+    <Folder Include="JWT\Services\" />
+    <Folder Include="Models\Bulletin\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

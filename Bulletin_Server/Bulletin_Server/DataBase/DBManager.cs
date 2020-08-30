@@ -16,10 +16,9 @@ namespace Bulletin_Server.DataBase
             return SqlMapper.Query<T>(conn, sql, new { search = search }).ToList();
         }
 
-        public async Task<T> Insert(IDbConnection conn , IDbTransaction tran = null)
+        public int Insert(IDbConnection conn , IDbTransaction tran = null)
         {
-            var resp = await SqlMapper.ExecuteAsync(conn, "insert query", this, tran);
-            return resp;
+            return SqlMapper.Execute(conn, "insert query", this, tran);
         }
 
         public int Update(IDbConnection conn, IDbTransaction tran = null)
