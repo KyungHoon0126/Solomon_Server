@@ -77,6 +77,8 @@
     <Compile Include="Interface\IService.cs" />
     <Compile Include="JWT\Models\IAuthContainerModel.cs" />
     <Compile Include="JWT\Models\JWTContainerModel.cs" />
+    <Compile Include="JWT\Services\IAuthService.cs" />
+    <Compile Include="JWT\Services\JWTService.cs" />
     <Compile Include="Models\Meal\Head.cs" />
     <Compile Include="Models\Meal\MealInfo.cs" />
     <Compile Include="Models\Meal\MealServiceDietInfo.cs" />
@@ -94,7 +96,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="JWT\Services\" />
     <Folder Include="Models\Bulletin\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
