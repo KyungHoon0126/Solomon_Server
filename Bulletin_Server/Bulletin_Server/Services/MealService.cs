@@ -9,7 +9,7 @@ using hap = HtmlAgilityPack;
 
 namespace Bulletin_Server.Service
 {
-    public class MealService : IService
+    public partial class BulletinService : IService
     {
         public Response<MealInfo> GetMealData()
         {
