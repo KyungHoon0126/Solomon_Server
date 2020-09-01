@@ -1,34 +1,30 @@
 ﻿using Dapper;
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bulletin_Server.DataBase
 {
     public class DBManager<T>
     {
-        public List<T> GetList(IDbConnection conn, IDbTransaction tran, string search)
+        public List<T> GetList(IDbConnection conn, string sql, string search, IDbTransaction tran)
         {
-            string sql = @"";
             return SqlMapper.Query<T>(conn, sql, new { search = search }).ToList();
         }
 
-        public int Insert(IDbConnection conn , IDbTransaction tran = null)
+        public int Insert(IDbConnection conn , string sql, object param, IDbTransaction tran = null)
         {
-            return SqlMapper.Execute(conn, "insert query", this, tran);
+            return SqlMapper.Execute(conn, sql, param, tran);
         }
 
-        public int Update(IDbConnection conn, IDbTransaction tran = null)
+        public int Update(IDbConnection conn, string sql, object param, IDbTransaction tran = null)
         {
-            return SqlMapper.Execute(conn, "update query", this, tran);
+            return SqlMapper.Execute(conn, sql, param, tran);
         }
 
-        public int Delete(IDbConnection conn, IDbTransaction tran = null)
+        public int Delete(IDbConnection conn, string sql, object param, IDbTransaction tran = null)
         {
-            return SqlMapper.Execute(conn, "delete query", this, tran);
+            return SqlMapper.Execute(conn, sql, param, tran);
         }
     }
 }
