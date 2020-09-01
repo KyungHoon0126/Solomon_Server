@@ -8,17 +8,28 @@ namespace Bulletin_Server
     [ServiceContract]
     public interface IService
     {
+        #region MealService
         [OperationContract]
         [WebInvoke(Method = "GET", ResponseFormat = WebMessageFormat.Json,
                    BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/meal")]
         [return: MessageParameter(Name = "Meal")]
         Response<MealInfo> GetMealData();
+        #endregion
+
+        #region MemberService
+        [OperationContract]
+        [WebInvoke(Method = "POST", ResponseFormat = WebMessageFormat.Json,
+                   BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/auth/register")]
+        [return: MessageParameter(Name = "SignUp")]
+        Response<UserModel> SignUp(string id, string pw, string name, string email);
+        
 
         [OperationContract]
         [WebInvoke(Method = "POST", ResponseFormat = WebMessageFormat.Json,
                    BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/auth/login")]
         [return: MessageParameter(Name = "Login")]
-        Response<User> Login(string id, string password, string email);
+        Response<UserModel> Login(string id, string password, string email);
+        #endregion
     }
 
     public class Response<T>
