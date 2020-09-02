@@ -12,7 +12,12 @@ namespace Bulletin_Server.DataBase
             return SqlMapper.Query<T>(conn, sql, new { search = search }).ToList();
         }
 
-        public int Insert(IDbConnection conn , string sql, object param, IDbTransaction tran = null)
+        public T GetSingleData(IDbConnection conn, string sql, string search, IDbTransaction tran)
+        {
+            return SqlMapper.Query<T>(conn, sql, new { search = search }).FirstOrDefault();
+        }
+
+        public int Insert(IDbConnection conn, string sql, object param, IDbTransaction tran = null)
         {
             return SqlMapper.Execute(conn, sql, param, tran);
         }
