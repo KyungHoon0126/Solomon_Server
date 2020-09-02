@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Bulletin_Server.DataBase
 {
@@ -12,24 +13,24 @@ namespace Bulletin_Server.DataBase
             return SqlMapper.Query<T>(conn, sql, new { search = search }).ToList();
         }
 
-        public T GetSingleData(IDbConnection conn, string sql, string search, IDbTransaction tran)
+        public async Task<T> GetSingleDataAsync(IDbConnection conn, string sql, string search, IDbTransaction tran)
         {
-            return SqlMapper.Query<T>(conn, sql, new { search = search }).FirstOrDefault();
+            return await SqlMapper.QueryFirstOrDefaultAsync<T>(conn, sql, new { search = search });
         }
 
-        public int Insert(IDbConnection conn, string sql, object param, IDbTransaction tran = null)
+        public async Task<int> InsertAsync(IDbConnection conn, string sql, object param, IDbTransaction tran = null)
         {
-            return SqlMapper.Execute(conn, sql, param, tran);
+            return await SqlMapper.ExecuteAsync(conn, sql, param, tran);
         }
 
-        public int Update(IDbConnection conn, string sql, object param, IDbTransaction tran = null)
+        public async Task<int> UpdateAsync(IDbConnection conn, string sql, object param, IDbTransaction tran = null)
         {
-            return SqlMapper.Execute(conn, sql, param, tran);
+            return await SqlMapper.ExecuteAsync(conn, sql, param, tran);
         }
 
-        public int Delete(IDbConnection conn, string sql, object param, IDbTransaction tran = null)
+        public async Task<int> DeleteAsync(IDbConnection conn, string sql, object param, IDbTransaction tran = null)
         {
-            return SqlMapper.Execute(conn, sql, param, tran);
+            return await SqlMapper.ExecuteAsync(conn, sql, param, tran);
         }
     }
 }
