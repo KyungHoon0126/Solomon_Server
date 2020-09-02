@@ -28,7 +28,7 @@ namespace Bulletin_Server
         [WebInvoke(Method = "POST", ResponseFormat = WebMessageFormat.Json,
                    BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/auth/login")]
         [return: MessageParameter(Name = "Login")]
-        Response<UserModel> Login(string id, string password, string email);
+        Response<UserModel> Login(string id, string pw);
         #endregion
     }
 

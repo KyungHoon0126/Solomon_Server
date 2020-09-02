@@ -3,7 +3,6 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 
 namespace Bulletin_Server.JWT.Services
@@ -101,14 +100,13 @@ namespace Bulletin_Server.JWT.Services
             }
         }
 
-        //public static JWTContainerModel GetJWTContainerModel(string name, string email)
-        public static JWTContainerModel GetJWTContainerModel(string email)
+        public static JWTContainerModel GetJWTContainerModel(string name, string email)
         {
             return new JWTContainerModel()
             {
                 Claims = new Claim[]
                 {
-                    //new Claim(ClaimTypes.Name, name),
+                    new Claim(ClaimTypes.Name, name),
                     new Claim(ClaimTypes.Email, email)
                 }
             };
