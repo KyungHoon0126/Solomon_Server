@@ -2,6 +2,7 @@
 using Bulletin_Server.Model.Member;
 using System.ServiceModel;
 using System.ServiceModel.Web;
+using System.Threading.Tasks;
 
 namespace Bulletin_Server
 {
@@ -21,14 +22,14 @@ namespace Bulletin_Server
         [WebInvoke(Method = "POST", ResponseFormat = WebMessageFormat.Json,
                    BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/auth/register")]
         [return: MessageParameter(Name = "SignUp")]
-        Response<UserModel> SignUp(string id, string pw, string name, string email);
+        Task<Response<UserModel>> SignUp(string id, string pw, string name, string email);
         
 
         [OperationContract]
         [WebInvoke(Method = "POST", ResponseFormat = WebMessageFormat.Json,
                    BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/auth/login")]
         [return: MessageParameter(Name = "Login")]
-        Response<UserModel> Login(string id, string pw);
+        Task<Response<UserModel>> Login(string id, string pw);
         #endregion
     }
 

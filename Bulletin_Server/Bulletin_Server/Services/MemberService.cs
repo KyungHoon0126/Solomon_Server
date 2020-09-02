@@ -18,7 +18,7 @@ namespace Bulletin_Server.Service
     {
         DBManager<UserModel> userDBManager = new DBManager<UserModel>();
 
-        public Response<UserModel> SignUp(string id, string pw, string name, string email)
+        public async Task<Response<UserModel>> SignUp(string id, string pw, string name, string email)
         {
             if (id != null && pw != null && name != null && email != null)
             {
@@ -47,7 +47,7 @@ VALUES(
     @name,
     @email
 );";
-                        userDBManager.Insert(db, insertSql, model);
+                        await userDBManager.InsertAsync(db, insertSql, model);
                         var resp = new Response<UserModel> { data = { }, message = "성공적으로 회원가입이 신청되었습니다.", status = ResponseStatus.OK };
                         return resp;
                     }
@@ -65,7 +65,7 @@ VALUES(
             }
         }
 
-        public Response<UserModel> Login(string id, string pw)
+        public async Task<Response<UserModel>> Login(string id, string pw)
         {
             if (id != null && id.Trim().Length > 0 && pw != null && pw.Trim().Length > 0)
             {
@@ -88,7 +88,7 @@ WHERE
 AND
     pw = '{pw}'
 ;";
-                        var resp = userDBManager.GetSingleData(db, selectSql, id, null);
+                        var resp = await userDBManager.GetSingleDataAsync(db, selectSql, id, null);
                         user.id = id;
                         user.name = resp.name;
                         user.email = resp.email;
