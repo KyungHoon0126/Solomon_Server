@@ -9,7 +9,7 @@ using hap = HtmlAgilityPack;
 
 namespace Bulletin_Server.Service
 {
-    public partial class BulletinService : IService
+    public partial class SolomonService : IService
     {
         public Response<MealInfo> GetMealData()
         {
@@ -22,6 +22,7 @@ namespace Bulletin_Server.Service
             document.LoadHtml(html);
             JObject jObject = JObject.Parse(document.Text);
             MealInfo mealData = JsonConvert.DeserializeObject<MealInfo>(jObject.ToString());
+            
             for (int i = 0; i < mealData.meal.Count; i++)
             {
                 if (mealData.meal[i].row == null)
@@ -29,6 +30,7 @@ namespace Bulletin_Server.Service
                     mealData.meal.Remove(mealData.meal[i]);
                 }
             }
+            
             if (mealData == null || mealData.meal.Count < 0)
             {
                 Console.WriteLine("급식 : " + ResponseStatus.NotFound);

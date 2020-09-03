@@ -153,11 +153,11 @@
     <Compile Include="JWT\Models\JWTContainerModel.cs" />
     <Compile Include="JWT\Services\IAuthService.cs" />
     <Compile Include="JWT\Services\JWTService.cs" />
-    <Compile Include="Models\Meal\Head.cs" />
-    <Compile Include="Models\Meal\MealInfo.cs" />
-    <Compile Include="Models\Meal\MealServiceDietInfo.cs" />
-    <Compile Include="Models\Meal\Result.cs" />
-    <Compile Include="Models\Meal\Row.cs" />
+    <Compile Include="Models\Meal\HeadModel.cs" />
+    <Compile Include="Models\Meal\MealInfoModel.cs" />
+    <Compile Include="Models\Meal\MealServiceDietInfoModel.cs" />
+    <Compile Include="Models\Meal\ResultModel.cs" />
+    <Compile Include="Models\Meal\RowModel.cs" />
     <Compile Include="Models\Member\UserModel.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

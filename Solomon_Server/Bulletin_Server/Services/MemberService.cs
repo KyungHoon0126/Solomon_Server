@@ -15,9 +15,13 @@ using System.Threading.Tasks;
 
 namespace Bulletin_Server.Service
 {
-    public partial class BulletinService : IService
+    public partial class SolomonService : IService
     {
         DBManager<UserModel> userDBManager = new DBManager<UserModel>();
+
+        public SolomonService()
+        {
+        }
 
         public async Task<Response> SignUp(string id, string pw, string name, string email)
         {
