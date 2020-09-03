@@ -19,10 +19,6 @@ namespace Bulletin_Server.Service
     {
         DBManager<UserModel> userDBManager = new DBManager<UserModel>();
 
-        public SolomonService()
-        {
-        }
-
         public async Task<Response> SignUp(string id, string pw, string name, string email)
         {
             if (id != null && pw != null && name != null && email != null)
@@ -98,7 +94,7 @@ WHERE
 AND
     pw = '{pw}'
 ;";
-                        var response = await userDBManager.GetSingleDataAsync(db, selectSql, id, null);
+                        var response = await userDBManager.GetSingleDataAsync(db, selectSql, id);
                         
                         if (response != null)
                         {

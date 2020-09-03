@@ -8,12 +8,12 @@ namespace Bulletin_Server.DataBase
 {
     public class DBManager<T>
     {
-        public List<T> GetList(IDbConnection conn, string sql, string search, IDbTransaction tran)
+        public async Task<List<T>> GetListAsync(IDbConnection conn, string sql, string search, IDbTransaction tran = null)
         {
-            return SqlMapper.Query<T>(conn, sql, new { search = search }).ToList();
+            return (await SqlMapper.QueryAsync<T>(conn, sql, new { search = search })).ToList();
         }
 
-        public async Task<T> GetSingleDataAsync(IDbConnection conn, string sql, string search, IDbTransaction tran)
+        public async Task<T> GetSingleDataAsync(IDbConnection conn, string sql, string search, IDbTransaction tran = null)
         {
             return await SqlMapper.QueryFirstOrDefaultAsync<T>(conn, sql, new { search = search });
         }
