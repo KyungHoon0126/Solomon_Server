@@ -17,6 +17,8 @@ namespace Bulletin_Server.Service
 
         public async Task<Response<List<BulletinModel>>> GetAllBulletins()
         {
+            List<BulletinModel> tempArr = new List<BulletinModel>();
+
             try
             {
                 List<BulletinModel> bulletins = new List<BulletinModel>();
@@ -32,9 +34,19 @@ FROM
 ";
 
                     bulletins = await bulletinDBManager.GetListAsync(db, selectSql, "");
-                    Console.WriteLine("게시글 전체 조회 : " + ResponseStatus.OK);
-                    var response = new Response<List<BulletinModel>> { data = bulletins, message = ResponseMessage.OK, status = ResponseStatus.OK };
-                    return response;
+                    
+                    if(bulletins != null && bulletins.Count > 0)
+                    {
+                        Console.WriteLine("게시글 전체 조회 : " + ResponseStatus.OK);
+                        var response = new Response<List<BulletinModel>> { data = bulletins, message = ResponseMessage.OK, status = ResponseStatus.OK };
+                        return response;
+                    }
+                    else
+                    {
+                        Console.WriteLine("게시글 전체 조회 : " + ResponseStatus.NotFound);
+                        var response = new Response<List<BulletinModel>> { data = tempArr, message = "게시글이 존재하지 않습니다.", status = ResponseStatus.NotFound };
+                        return response;
+                    }
                 }
             }
             catch (Exception e)
@@ -42,7 +54,7 @@ FROM
                 Console.WriteLine("GET ALL BULLETINS ERROR : " + e.Message);
             }
 
-            var resp = new Response<List<BulletinModel>> { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.InternalServerError };
+            var resp = new Response<List<BulletinModel>> { data = tempArr, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.InternalServerError };
             return resp;
         }
 
