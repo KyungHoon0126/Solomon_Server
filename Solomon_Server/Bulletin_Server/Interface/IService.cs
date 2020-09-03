@@ -1,6 +1,7 @@
 ﻿using Bulletin_Server.Model.Meal;
 using Bulletin_Server.Model.Member;
 using Solomon_Server.Models.Bulletin;
+using System.Collections.Generic;
 using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Threading.Tasks;
@@ -58,9 +59,9 @@ namespace Bulletin_Server
         /// <returns></returns>
         [OperationContract]
         [WebInvoke(Method = "GET", ResponseFormat = WebMessageFormat.Json,
-                   BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletn")]
+                   BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin")]
         [return: MessageParameter(Name = "Bulletin")]
-        Task<Response<BulletinModel>> GetAllBulletins();
+        Task<Response<List<BulletinModel>>> GetAllBulletins();
 
         /// <summary>
         /// 게시글 작성
@@ -79,13 +80,12 @@ namespace Bulletin_Server
         /// 게시글 삭제
         /// </summary>
         /// <param name="idx", 게시글 idx></param>
-        /// <param name="id", 작성자 id></param>
         /// <returns></returns>
         [OperationContract]
         [WebInvoke(Method = "DELETE", ResponseFormat = WebMessageFormat.Json,
                    BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin")]
         [return: MessageParameter(Name = "Delete Bulletin")]
-        Task<Response> DeleteBulletin(int idx, string id);
+        Task<Response> DeleteBulletin(int idx);
        
         /// <summary>
         /// 게시글 수정
