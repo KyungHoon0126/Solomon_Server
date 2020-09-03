@@ -22,7 +22,7 @@ namespace Bulletin_Server
         [WebInvoke(Method = "POST", ResponseFormat = WebMessageFormat.Json,
                    BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/auth/register")]
         [return: MessageParameter(Name = "SignUp")]
-        Task<Response<UserModel>> SignUp(string id, string pw, string name, string email);
+        Task<Response> SignUp(string id, string pw, string name, string email);
         
 
         [OperationContract]
@@ -31,6 +31,12 @@ namespace Bulletin_Server
         [return: MessageParameter(Name = "Login")]
         Task<Response<UserModel>> Login(string id, string pw);
         #endregion
+    }
+
+    public class Response
+    {
+        public string message { get; set; }
+        public int status { get; set; }
     }
 
     public class Response<T>
