@@ -108,20 +108,56 @@ VALUES(
             }
         }
 
-        public Task<Response> DeleteBulletin(int idx)
+        public async Task<Response> DeleteBulletin(int idx)
         {
-            // TODO : INSERT 후 index Sync 
-            // await db.QueryAsync(ComDef.GetIndexSortSQL("bulletin_tb"));
-            throw new NotImplementedException();
+            if (idx.ToString() != null && idx.ToString().Length > 0)
+            {
+                try
+                {
+                    using (IDbConnection db = new MySqlConnection(ComDef.DATABASE_URL))
+                    {
+                        db.Open();
+
+                        var model = new BulletinModel();
+                        model.idx = idx;
+
+                        string deleteSql = $@"
+DELETE FROM
+    bulletin_tb
+WHERE
+    idx = '{idx}'
+;";
+                        await bulletinDBManager.DeleteAsync(db, deleteSql, model);
+                        await bulletinDBManager.IndexSortSqlAsync(db, ComDef.GetIndexSortSQL("bulletin_tb"));
+                        Console.WriteLine("게시글 삭제 : " + ResponseStatus.OK);
+                        var resp = new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
+                        return resp;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("게시글 삭제 : " + ResponseStatus.InternalServerError);
+                    Console.WriteLine("Write Bulletin ERROR : " + e.Message);
+                    var resp = new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.InternalServerError };
+                    return resp;
+                }
+            }
+            else
+            {
+                Console.WriteLine("게시글 삭제 : " + ResponseStatus.BadRequest);
+                var resp = new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
+                return resp;
+            }
         }
 
-        public Task<Response> UpdateBulletin(string title, string content)
+        public async Task<Response> UpdateBulletin(string title, string content)
         {
             throw new NotImplementedException();
         }
         #endregion
 
         #region Comment
+
         #endregion
     }
 }
