@@ -109,9 +109,9 @@ VALUES(
             }
         }
 
-        public async Task<Response> DeleteBulletin(int idx)
+        public async Task<Response> DeleteBulletin(string writer, int idx)
         {
-            if (idx.ToString() != null && idx.ToString().Length > 0)
+            if (idx.ToString() != null && idx.ToString().Length > 0 && writer != null && writer.Length > 0)
             {
                 try
                 {
@@ -121,12 +121,15 @@ VALUES(
 
                         var model = new BulletinModel();
                         model.idx = idx;
+                        model.writer = writer;
 
                         string deleteSql = $@"
 DELETE FROM
     bulletin_tb
 WHERE
-    idx = '{idx}'
+    writer = '{writer}'
+AND
+    idx = '{idx}'    
 ;";
                         await bulletinDBManager.DeleteAsync(db, deleteSql, model);
                         await bulletinDBManager.IndexSortSqlAsync(db, ComDef.GetIndexSortSQL("bulletin_tb"));
@@ -151,7 +154,7 @@ WHERE
             }
         }
 
-        public async Task<Response> PutBulletin(string title, string content, int idx)
+        public async Task<Response> PutBulletin(string title, string content, string writer, int idx)
         {
             if (title != null && title.Trim().Length > 0 && content != null && title.Trim().Length > 0 && idx.ToString().Length > 0)
             {
@@ -164,6 +167,7 @@ WHERE
                         var model = new BulletinModel();
                         model.title = title;
                         model.content = content;
+                        model.writer = writer;
                         model.idx = idx;
 
                         string updateSql = $@"
@@ -173,6 +177,8 @@ SET
     title = '{title}',
     content = '{content}'
 WHERE
+    writer = '{writer}'
+AND
     idx = '{idx}'
 ;";
                         await bulletinDBManager.UpdateAsync(db, updateSql, model);
@@ -289,14 +295,97 @@ VALUES(
             }
         }
 
-        public async Task<Response> DeleteComment(int idx)
+        public async Task<Response> DeleteComment(string writer, int idx)
         {
-            throw new NotImplementedException();
+            if (idx.ToString() != null && idx.ToString().Length > 0 && writer != null && writer.Length > 0)
+            {
+                try
+                {
+                    using (IDbConnection db = new MySqlConnection(ComDef.DATABASE_URL))
+                    {
+                        db.Open();
+
+                        var model = new CommentModel();
+                        model.writer = writer;
+                        model.idx = idx;
+
+                        string deleteSql = $@"
+DELETE FROM
+    comment_tb
+WHERE
+    writer = '{writer}'
+AND
+    idx = '{idx}'    
+;";
+                        await bulletinDBManager.DeleteAsync(db, deleteSql, model);
+                        await bulletinDBManager.IndexSortSqlAsync(db, ComDef.GetIndexSortSQL("comment_tb"));
+                        Console.WriteLine("댓글 삭제 : " + ResponseStatus.OK);
+                        var resp = new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
+                        return resp;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("댓글 삭제 : " + ResponseStatus.InternalServerError);
+                    Console.WriteLine("Delete Comment ERROR : " + e.Message);
+                    var resp = new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.InternalServerError };
+                    return resp;
+                }
+            }
+            else
+            {
+                Console.WriteLine("댓글 삭제 : " + ResponseStatus.BadRequest);
+                var resp = new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
+                return resp;
+            }
         }
 
-        public async Task<Response> PutComment(string content, int idx)
+        public async Task<Response> PutComment(string content, string writer, int idx)
         {
-            throw new NotImplementedException();
+            if (content != null && content.Trim().Length > 0 && writer != null && writer.Trim().Length > 0 && idx.ToString().Length > 0)
+            {
+                try
+                {
+                    using (IDbConnection db = new MySqlConnection(ComDef.DATABASE_URL))
+                    {
+                        db.Open();
+
+                        var model = new CommentModel();
+                        model.content = content;
+                        model.writer = writer;
+                        model.idx = idx;
+
+                        string updateSql = $@"
+UPDATE 
+    comment_tb
+SET
+    content = '{content}'
+WHERE
+    writer = '{writer}'
+AND
+    idx = '{idx}'
+;";
+                        await commentDBManager.UpdateAsync(db, updateSql, model);
+                        await commentDBManager.IndexSortSqlAsync(db, updateSql);
+                        Console.WriteLine("댓글 수정 : " + ResponseStatus.OK);
+                        var resp = new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
+                        return resp;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("댓글 수정 : " + ResponseStatus.InternalServerError);
+                    Console.WriteLine("Put Comment ERROR : " + e.Message);
+                    var resp = new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.InternalServerError };
+                    return resp;
+                }
+            }
+            else
+            {
+                Console.WriteLine("댓글 수정 : " + ResponseStatus.BadRequest);
+                var resp = new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
+                return resp;
+            }
         }
         #endregion
     }
