@@ -16,7 +16,7 @@ namespace Bulletin_Server.Service
         DBManager<BulletinModel> bulletinDBManager = new DBManager<BulletinModel>();
         DBManager<CommentModel> commentDBManager = new DBManager<CommentModel>();
 
-        #region Bulletin
+        #region Bulletin_Service
         public async Task<Response<List<BulletinModel>>> GetAllBulletins()
         {
             List<BulletinModel> tempArr = new List<BulletinModel>();
@@ -203,9 +203,55 @@ AND
                 return resp;
             }
         }
+
+        public async Task<Response<BulletinModel>> GetSpecificBulletin(string idx)
+        {
+            BulletinModel tempModel = new BulletinModel();
+
+            try
+            {
+                BulletinModel bulletin = new BulletinModel();
+
+                using (IDbConnection db = new MySqlConnection(ComDef.DATABASE_URL))
+                {
+                    db.Open();
+
+                    string selectSql = $@"
+SELECT
+    *
+FROM
+    bulletin_tb
+WHERE
+    idx = '{idx}'
+";
+
+                    bulletin = await bulletinDBManager.GetSingleDataAsync(db, selectSql, "");
+
+                    if (bulletin != null)
+                    {
+                        Console.WriteLine("특정 게시글 조회 : " + ResponseStatus.OK);
+                        var response = new Response<BulletinModel> { data = bulletin, message = ResponseMessage.OK, status = ResponseStatus.OK };
+                        return response;
+                    }
+                    else
+                    {
+                        Console.WriteLine("특정 게시글 조회 : " + ResponseStatus.NotFound);
+                        var response = new Response<BulletinModel> { data = tempModel, message = "게시글이 존재하지 않습니다.", status = ResponseStatus.NotFound };
+                        return response;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("GET SPECIFIC BULLETIN ERROR : " + e.Message);
+            }
+
+            var resp = new Response<BulletinModel> { data = tempModel, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.InternalServerError };
+            return resp;
+        }
         #endregion
 
-        #region Comment
+        #region Comment_Service
         public async Task<Response<List<CommentModel>>> GetAllComments()
         {
             List<CommentModel> tempArr = new List<CommentModel>();
@@ -249,9 +295,9 @@ FROM
             return resp;
         }   
 
-        public async Task<Response> WriteComment(string writer, string content)
+        public async Task<Response> WriteComment(int bulletin_idx, string writer, string content)
         {
-            if (writer != null && content != null && writer.Trim().Length > 0 && content.Trim().Length > 0)
+            if (bulletin_idx.ToString().Length > 0 && writer != null && content != null && writer.Trim().Length > 0 && content.Trim().Length > 0)
             {
                 try
                 {
@@ -260,15 +306,18 @@ FROM
                         db.Open();
 
                         var model = new CommentModel();
+                        model.bulletin_idx = bulletin_idx;
                         model.writer = writer;
                         model.content = content;
 
                         string insertSql = @"
 INSERT INTO comment_tb(
+    bulletin_idx,
     writer,
     content
 )
 VALUES(
+    @bulletin_idx,
     @writer,
     @content
 );";
