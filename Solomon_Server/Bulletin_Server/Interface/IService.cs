@@ -85,7 +85,7 @@ namespace Bulletin_Server
         [WebInvoke(Method = "DELETE", ResponseFormat = WebMessageFormat.Json,
                    BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin")]
         [return: MessageParameter(Name = "Delete_Bulletin")]
-        Task<Response> DeleteBulletin(int idx);
+        Task<Response> DeleteBulletin(string writer, int idx);
        
         /// <summary>
         /// 게시글 수정
@@ -97,7 +97,7 @@ namespace Bulletin_Server
         [WebInvoke(Method = "PUT", ResponseFormat = WebMessageFormat.Json,
                    BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin")]
         [return: MessageParameter(Name = "Put_Bulletin")]
-        Task<Response> PutBulletin(string title, string content, int idx);
+        Task<Response> PutBulletin(string title, string content, string writer, int idx);
         #endregion
 
         #region Bulletin_Comment_Service
@@ -117,13 +117,13 @@ namespace Bulletin_Server
         [WebInvoke(Method = "DELETE", ResponseFormat = WebMessageFormat.Json,
                    BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin/comment")]
         [return: MessageParameter(Name = "Delete_Comment")]
-        Task<Response> DeleteComment(int idx);
+        Task<Response> DeleteComment(string writer, int idx);
 
         [OperationContract]
         [WebInvoke(Method = "PUT", ResponseFormat = WebMessageFormat.Json,
                    BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin/comment")]
         [return: MessageParameter(Name = "Put_Comment")]
-        Task<Response> PutComment(string content, int idx);
+        Task<Response> PutComment(string content, string writer, int idx);
         #endregion
     }
 
