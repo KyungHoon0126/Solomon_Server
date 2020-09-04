@@ -154,6 +154,7 @@
     <Compile Include="JWT\Services\IAuthService.cs" />
     <Compile Include="JWT\Services\JWTService.cs" />
     <Compile Include="Models\Bulletin\BulletinModel.cs" />
+    <Compile Include="Models\Bulletin\CommentModel.cs" />
     <Compile Include="Models\Meal\HeadModel.cs" />
     <Compile Include="Models\Meal\MealInfoModel.cs" />
     <Compile Include="Models\Meal\MealServiceDietInfoModel.cs" />

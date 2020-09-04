@@ -14,6 +14,7 @@ namespace Bulletin_Server.Service
     public partial class SolomonService : IService
     {
         DBManager<BulletinModel> bulletinDBManager = new DBManager<BulletinModel>();
+        DBManager<CommentModel> commentDBManager = new DBManager<CommentModel>();
 
         #region Bulletin
         public async Task<Response<List<BulletinModel>>> GetAllBulletins()
@@ -199,7 +200,63 @@ WHERE
         #endregion
 
         #region Comment
+        public async Task<Response<List<CommentModel>>> GetAllComments()
+        {
+            List<CommentModel> tempArr = new List<CommentModel>();
 
+            try
+            {
+                List<CommentModel> comments = new List<CommentModel>();
+                using (IDbConnection db = new MySqlConnection(ComDef.DATABASE_URL))
+                {
+                    db.Open();
+
+                    string selectSql = @"
+SELECT
+    *
+FROM
+    comment_table
+";
+
+                    comments = await commentDBManager.GetListAsync(db, selectSql, "");
+
+                    if (comments != null && comments.Count > 0)
+                    {
+                        Console.WriteLine("게시글 전체 조회 : " + ResponseStatus.OK);
+                        var response = new Response<List<CommentModel>> { data = comments, message = ResponseMessage.OK, status = ResponseStatus.OK };
+                        return response;
+                    }
+                    else
+                    {
+                        Console.WriteLine("게시글 전체 조회 : " + ResponseStatus.NotFound);
+                        var response = new Response<List<CommentModel>> { data = tempArr, message = "게시글이 존재하지 않습니다.", status = ResponseStatus.NotFound };
+                        return response;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("GET ALL COMMENTS ERROR : " + e.Message);
+            }
+
+            var resp = new Response<List<CommentModel>> { data = tempArr, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.InternalServerError };
+            return resp;
+        }   
+
+        public async Task<Response> WriteComment(string writer, string content)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<Response> DeleteComment(int idx)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<Response> PutComment(string content, int idx)
+        {
+            throw new NotImplementedException();
+        }
         #endregion
     }
 }

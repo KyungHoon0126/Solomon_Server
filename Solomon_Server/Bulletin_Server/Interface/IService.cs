@@ -73,7 +73,7 @@ namespace Bulletin_Server
         [OperationContract]
         [WebInvoke(Method = "POST", ResponseFormat = WebMessageFormat.Json,
                    BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin")]
-        [return: MessageParameter(Name = "Write Bulletin")]
+        [return: MessageParameter(Name = "Write_Bulletin")]
         Task<Response> WriteBulletin(string title, string content, string writer);
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace Bulletin_Server
         [OperationContract]
         [WebInvoke(Method = "DELETE", ResponseFormat = WebMessageFormat.Json,
                    BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin")]
-        [return: MessageParameter(Name = "Delete Bulletin")]
+        [return: MessageParameter(Name = "Delete_Bulletin")]
         Task<Response> DeleteBulletin(int idx);
        
         /// <summary>
@@ -96,12 +96,34 @@ namespace Bulletin_Server
         [OperationContract]
         [WebInvoke(Method = "PUT", ResponseFormat = WebMessageFormat.Json,
                    BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin")]
-        [return: MessageParameter(Name = "Put Bulletin")]
+        [return: MessageParameter(Name = "Put_Bulletin")]
         Task<Response> PutBulletin(string title, string content, int idx);
         #endregion
 
         #region Bulletin_Comment_Service
+        [OperationContract]
+        [WebInvoke(Method = "GET", ResponseFormat = WebMessageFormat.Json,
+                   BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin/comment")]
+        [return: MessageParameter(Name = "Comment")]
+        Task<Response<List<CommentModel>>> GetAllComments();
 
+        [OperationContract]
+        [WebInvoke(Method = "POST", ResponseFormat = WebMessageFormat.Json,
+                   BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin/comment")]
+        [return: MessageParameter(Name = "Write_Comment")]
+        Task<Response> WriteComment(string writer, string content);
+
+        [OperationContract]
+        [WebInvoke(Method = "DELETE", ResponseFormat = WebMessageFormat.Json,
+                   BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin/comment")]
+        [return: MessageParameter(Name = "Delete_Comment")]
+        Task<Response> DeleteComment(int idx);
+
+        [OperationContract]
+        [WebInvoke(Method = "PUT", ResponseFormat = WebMessageFormat.Json,
+                   BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin/comment")]
+        [return: MessageParameter(Name = "Put_Comment")]
+        Task<Response> PutComment(string content, int idx);
         #endregion
     }
 
