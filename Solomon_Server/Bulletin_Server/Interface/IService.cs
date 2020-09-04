@@ -11,7 +11,7 @@ namespace Bulletin_Server
     [ServiceContract]
     public partial interface IService
     {
-        #region MealService
+        #region Meal_Service
         /// <summary>
         /// 급식 정보
         /// </summary>
@@ -23,7 +23,7 @@ namespace Bulletin_Server
         Response<MealInfo> GetMealData();
         #endregion
 
-        #region MemberService
+        #region Member_Service
         /// <summary>
         /// 회원 가입
         /// </summary>
@@ -52,7 +52,7 @@ namespace Bulletin_Server
         Task<Response<UserModel>> Login(string id, string pw);
         #endregion
 
-        #region BulletinService
+        #region Bulletin_Service
         /// <summary>
         /// 전체 게시글 조회
         /// </summary>
@@ -98,6 +98,10 @@ namespace Bulletin_Server
                    BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin")]
         [return: MessageParameter(Name = "Update Bulletin")]
         Task<Response> UpdateBulletin(string title, string content);
+        #endregion
+
+        #region Bulletin_Comment_Service
+
         #endregion
     }
 
