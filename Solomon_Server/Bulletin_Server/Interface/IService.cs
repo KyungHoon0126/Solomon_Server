@@ -94,10 +94,10 @@ namespace Bulletin_Server
         /// <param name="content", 게시글 내용></param>
         /// <returns></returns>
         [OperationContract]
-        [WebInvoke(Method = "UPDATE", ResponseFormat = WebMessageFormat.Json,
+        [WebInvoke(Method = "PUT", ResponseFormat = WebMessageFormat.Json,
                    BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin")]
-        [return: MessageParameter(Name = "Update Bulletin")]
-        Task<Response> UpdateBulletin(string title, string content);
+        [return: MessageParameter(Name = "Put Bulletin")]
+        Task<Response> PutBulletin(string title, string content, int idx);
         #endregion
 
         #region Bulletin_Comment_Service
