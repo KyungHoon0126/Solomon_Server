@@ -215,7 +215,7 @@ WHERE
 SELECT
     *
 FROM
-    comment_table
+    comment_tb
 ";
 
                     comments = await commentDBManager.GetListAsync(db, selectSql, "");
@@ -245,7 +245,48 @@ FROM
 
         public async Task<Response> WriteComment(string writer, string content)
         {
-            throw new NotImplementedException();
+            if (writer != null && content != null && writer.Trim().Length > 0 && content.Trim().Length > 0)
+            {
+                try
+                {
+                    using (IDbConnection db = new MySqlConnection(ComDef.DATABASE_URL))
+                    {
+                        db.Open();
+
+                        var model = new CommentModel();
+                        model.writer = writer;
+                        model.content = content;
+
+                        string insertSql = @"
+INSERT INTO comment_tb(
+    writer,
+    content
+)
+VALUES(
+    @writer,
+    @content
+);";
+                        await commentDBManager.InsertAsync(db, insertSql, model);
+                        await commentDBManager.IndexSortSqlAsync(db, ComDef.GetIndexSortSQL("comment_tb"));
+                        Console.WriteLine("댓글 작성 : " + ResponseStatus.OK);
+                        var resp = new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
+                        return resp;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("댓글 작성 : " + ResponseStatus.InternalServerError);
+                    Console.WriteLine("Write Comment ERROR : " + e.Message);
+                    var resp = new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.InternalServerError };
+                    return resp;
+                }
+            }
+            else
+            {
+                Console.WriteLine("댓글 작성 : " + ResponseStatus.BadRequest);
+                var resp = new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
+                return resp;
+            }
         }
 
         public async Task<Response> DeleteComment(int idx)
