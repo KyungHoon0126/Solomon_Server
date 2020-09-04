@@ -4,7 +4,6 @@ using Bulletin_Server.JWT.Models;
 using Bulletin_Server.JWT.Services;
 using Bulletin_Server.Model.Member;
 using Bulletin_Server.Utils;
-using Dapper;
 using MySql.Data.MySqlClient;
 using Solomon_Server.Common;
 using System;
