@@ -1,4 +1,6 @@
-﻿namespace Solomon_Server.Models.Bulletin
+﻿using System.Collections.Generic;
+
+namespace Solomon_Server.Models.Bulletin
 {
     public class BulletinModel
     {
@@ -7,6 +9,7 @@
         public string content { get; set; }
         public string writer { get; set; }
         public string written_time { get; set; }
-        public string comment { get; set; }
+
+        public List<string> comment = new List<string>();
     }
 }
