@@ -150,9 +150,51 @@ WHERE
             }
         }
 
-        public async Task<Response> UpdateBulletin(string title, string content)
+        public async Task<Response> PutBulletin(string title, string content, int idx)
         {
-            throw new NotImplementedException();
+            if (title != null && title.Trim().Length > 0 && content != null && title.Trim().Length > 0 && idx.ToString().Length > 0)
+            {
+                try
+                {
+                    using (IDbConnection db = new MySqlConnection(ComDef.DATABASE_URL))
+                    {
+                        db.Open();
+
+                        var model = new BulletinModel();
+                        model.title = title;
+                        model.content = content;
+                        model.idx = idx;
+
+                        string updateSql = $@"
+UPDATE 
+    bulletin_tb
+SET
+    title = '{title}',
+    content = '{content}'
+WHERE
+    idx = '{idx}'
+;";
+                        await bulletinDBManager.UpdateAsync(db, updateSql, model);
+                        await bulletinDBManager.IndexSortSqlAsync(db, updateSql);
+                        Console.WriteLine("게시글 수정 : " + ResponseStatus.OK);
+                        var resp = new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
+                        return resp;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("게시글 수정 : " + ResponseStatus.InternalServerError);
+                    Console.WriteLine("Put Bulletin ERROR : " + e.Message);
+                    var resp = new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.InternalServerError };
+                    return resp;
+                }
+            }
+            else
+            {
+                Console.WriteLine("게시글 수정 : " + ResponseStatus.BadRequest);
+                var resp = new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
+                return resp;
+            }
         }
         #endregion
 
