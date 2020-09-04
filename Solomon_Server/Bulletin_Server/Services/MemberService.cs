@@ -4,6 +4,7 @@ using Bulletin_Server.JWT.Models;
 using Bulletin_Server.JWT.Services;
 using Bulletin_Server.Model.Member;
 using Bulletin_Server.Utils;
+using Dapper;
 using MySql.Data.MySqlClient;
 using Solomon_Server.Common;
 using System;
@@ -50,6 +51,7 @@ VALUES(
 );";
 
                         await userDBManager.InsertAsync(db, insertSql, model);
+                        await userDBManager.IndexSortSqlAsync(db, ComDef.GetIndexSortSQL("member_tb"));
                         Console.WriteLine("회원 가입 : " + ResponseStatus.OK);
                         var resp = new Response { message = "성공적으로 회원가입이 신청되었습니다.", status = ResponseStatus.OK };
                         return resp;

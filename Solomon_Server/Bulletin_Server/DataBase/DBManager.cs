@@ -8,6 +8,11 @@ namespace Bulletin_Server.DataBase
 {
     public class DBManager<T>
     {
+        public async Task IndexSortSqlAsync(IDbConnection conn, string sql)
+        {
+            await SqlMapper.QueryAsync(conn, sql);
+        }
+
         public async Task<List<T>> GetListAsync(IDbConnection conn, string sql, string search, IDbTransaction tran = null)
         {
             return (await SqlMapper.QueryAsync<T>(conn, sql, new { search = search })).ToList();
