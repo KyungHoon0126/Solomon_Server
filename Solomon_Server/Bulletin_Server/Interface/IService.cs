@@ -136,6 +136,11 @@ namespace Bulletin_Server
                    BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin/comment")]
         [return: MessageParameter(Name = "Put_Comment")]
         Task<Response> PutComment(string content, string writer, int idx);
+
+        [OperationContract]
+        [WebInvoke(Method = "GET", ResponseFormat = WebMessageFormat.Json,
+                   BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin/comment/{bulletin_idx}")]
+        Task<Response<List<CommentModel>>> GetSpecificComments(string bulletin_idx);
         #endregion
     }
 
