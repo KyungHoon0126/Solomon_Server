@@ -9,7 +9,5 @@ namespace Solomon_Server.Models.Bulletin
         public string content { get; set; }
         public string writer { get; set; }
         public string written_time { get; set; }
-
-        public List<string> comment = new List<string>();
     }
 }

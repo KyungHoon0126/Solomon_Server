@@ -19,6 +19,7 @@ namespace Bulletin_Server.Service
     {
         DBManager<UserModel> userDBManager = new DBManager<UserModel>();
 
+        #region Member_Service
         public async Task<Response> SignUp(string id, string pw, string name, string email)
         {
             if (id != null && pw != null && name != null && email != null)
@@ -147,5 +148,6 @@ AND
                 return resp;
             }
         }
+        #endregion
     }
 }

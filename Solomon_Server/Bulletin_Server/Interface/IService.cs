@@ -98,7 +98,19 @@ namespace Bulletin_Server
                    BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin")]
         [return: MessageParameter(Name = "Put_Bulletin")]
         Task<Response> PutBulletin(string title, string content, string writer, int idx);
+
+        /// <summary>
+        /// 특정 게시물 조회
+        /// </summary>
+        /// <param name="idx", 게시글 idx></param>
+        /// <returns></returns>
+        [OperationContract]
+        [WebInvoke(Method = "GET", ResponseFormat = WebMessageFormat.Json,
+                   BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin/{idx}")]
+        [return: MessageParameter(Name = "Specific_Bulletin")]
+        Task<Response<BulletinModel>> GetSpecificBulletin(string idx);
         #endregion
+
 
         #region Bulletin_Comment_Service
         [OperationContract]
@@ -111,7 +123,7 @@ namespace Bulletin_Server
         [WebInvoke(Method = "POST", ResponseFormat = WebMessageFormat.Json,
                    BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin/comment")]
         [return: MessageParameter(Name = "Write_Comment")]
-        Task<Response> WriteComment(string writer, string content);
+        Task<Response> WriteComment(int bulletin_idx, string writer, string content);
 
         [OperationContract]
         [WebInvoke(Method = "DELETE", ResponseFormat = WebMessageFormat.Json,
