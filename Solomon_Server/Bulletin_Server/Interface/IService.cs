@@ -122,6 +122,7 @@ namespace Bulletin_Server
         #region Bulletin_Comment_Service
         /// <summary>
         /// 전체 댓글 조회
+        /// Headers : token(string)
         /// </summary>
         /// <returns>Comments</returns>
         [OperationContract]
@@ -132,6 +133,7 @@ namespace Bulletin_Server
 
         /// <summary>
         /// 댓글 작성
+        /// Headers : token(string)
         /// </summary>
         /// <param name="bulletin_idx", 게시글 idx></param>
         /// <param name="writer", 작성자></param>
@@ -145,6 +147,7 @@ namespace Bulletin_Server
 
         /// <summary>
         /// 댓글 삭제
+        /// Headers : token(string)
         /// </summary>
         /// <param name="writer", 작성자></param>
         /// <param name="idx", 댓글 idx></param>
@@ -157,6 +160,7 @@ namespace Bulletin_Server
 
         /// <summary>
         /// 댓글 수정
+        /// Headers : token(string)
         /// </summary>
         /// <param name="content", 댓글 내용></param>
         /// <param name="writer", 작성자></param>
@@ -170,6 +174,7 @@ namespace Bulletin_Server
 
         /// <summary>
         /// 특정 게시물 전체 댓글 조회
+        /// Headers : token(string)
         /// </summary>
         /// <param name="bulletin_idx", 게시글 idx></param>
         /// <returns></returns>
