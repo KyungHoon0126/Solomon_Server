@@ -13,12 +13,13 @@ namespace Bulletin_Server
     {
         #region Meal_Service
         /// <summary>
-        /// 급식 정보
+        /// 급식 
+        /// Headers : token
         /// </summary>
         /// <returns></returns>
         [OperationContract]
         [WebInvoke(Method = "GET", ResponseFormat = WebMessageFormat.Json,
-                   BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/meal")]
+                   BodyStyle = WebMessageBodyStyle.WrappedResponse, UriTemplate = "/meal")]
         [return: MessageParameter(Name = "Meal")]
         Response<MealInfo> GetMealData();
         #endregion
@@ -111,32 +112,60 @@ namespace Bulletin_Server
         Task<Response<BulletinModel>> GetSpecificBulletin(string idx);
         #endregion
 
-
         #region Bulletin_Comment_Service
+        /// <summary>
+        /// 전체 댓글 조회
+        /// </summary>
+        /// <returns>Comments</returns>
         [OperationContract]
         [WebInvoke(Method = "GET", ResponseFormat = WebMessageFormat.Json,
                    BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin/comment")]
         [return: MessageParameter(Name = "Comment")]
         Task<Response<List<CommentModel>>> GetAllComments();
 
+        /// <summary>
+        /// 댓글 작성
+        /// </summary>
+        /// <param name="bulletin_idx", 게시글 idx></param>
+        /// <param name="writer", 작성자></param>
+        /// <param name="content", 댓글 내용></param>
+        /// <returns></returns>
         [OperationContract]
         [WebInvoke(Method = "POST", ResponseFormat = WebMessageFormat.Json,
                    BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin/comment")]
         [return: MessageParameter(Name = "Write_Comment")]
         Task<Response> WriteComment(int bulletin_idx, string writer, string content);
 
+        /// <summary>
+        /// 댓글 삭제
+        /// </summary>
+        /// <param name="writer", 작성자></param>
+        /// <param name="idx", 댓글 idx></param>
+        /// <returns></returns>
         [OperationContract]
         [WebInvoke(Method = "DELETE", ResponseFormat = WebMessageFormat.Json,
                    BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin/comment")]
         [return: MessageParameter(Name = "Delete_Comment")]
         Task<Response> DeleteComment(string writer, int idx);
 
+        /// <summary>
+        /// 댓글 수정
+        /// </summary>
+        /// <param name="content", 댓글 내용></param>
+        /// <param name="writer", 작성자></param>
+        /// <param name="idx", 댓글 idx></param>
+        /// <returns></returns>
         [OperationContract]
         [WebInvoke(Method = "PUT", ResponseFormat = WebMessageFormat.Json,
                    BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin/comment")]
         [return: MessageParameter(Name = "Put_Comment")]
         Task<Response> PutComment(string content, string writer, int idx);
 
+        /// <summary>
+        /// 특정 게시물 전체 댓글 조회
+        /// </summary>
+        /// <param name="bulletin_idx", 게시글 idx></param>
+        /// <returns></returns>
         [OperationContract]
         [WebInvoke(Method = "GET", ResponseFormat = WebMessageFormat.Json,
                    BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin/comment/{bulletin_idx}")]
