@@ -13,8 +13,8 @@ namespace Bulletin_Server
     {
         #region Meal_Service
         /// <summary>
-        /// 급식 
-        /// Headers : token
+        /// 급식 조회
+        /// Headers : token(string)
         /// </summary>
         /// <returns></returns>
         [OperationContract]
@@ -56,6 +56,7 @@ namespace Bulletin_Server
         #region Bulletin_Service
         /// <summary>
         /// 전체 게시글 조회
+        /// Headers : token(string)
         /// </summary>
         /// <returns></returns>
         [OperationContract]
@@ -66,6 +67,7 @@ namespace Bulletin_Server
 
         /// <summary>
         /// 게시글 작성
+        /// Headers : token(string)
         /// </summary>
         /// <param name="title", 게시글 제목></param>
         /// <param name="content", 게시글 내용></param>
@@ -79,6 +81,7 @@ namespace Bulletin_Server
 
         /// <summary>
         /// 게시글 삭제
+        /// Headers : token(string)
         /// </summary>
         /// <param name="idx", 게시글 idx></param>
         /// <returns></returns>
@@ -87,12 +90,15 @@ namespace Bulletin_Server
                    BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin")]
         [return: MessageParameter(Name = "Delete_Bulletin")]
         Task<Response> DeleteBulletin(string writer, int idx);
-       
+
         /// <summary>
         /// 게시글 수정
+        /// Headers : token(string)
         /// </summary>
         /// <param name="title", 게시글 제목></param>
         /// <param name="content", 게시글 내용></param>
+        /// <param name="writer", 작성자></param>
+        /// <param name="idx", 게시글 idx></param>
         /// <returns></returns>
         [OperationContract]
         [WebInvoke(Method = "PUT", ResponseFormat = WebMessageFormat.Json,
@@ -102,6 +108,7 @@ namespace Bulletin_Server
 
         /// <summary>
         /// 특정 게시물 조회
+        /// Headers : token(string)
         /// </summary>
         /// <param name="idx", 게시글 idx></param>
         /// <returns></returns>
