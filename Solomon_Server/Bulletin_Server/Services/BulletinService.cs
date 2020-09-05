@@ -7,6 +7,7 @@ using Solomon_Server.Models.Bulletin;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.ServiceModel.Web;
 using System.Threading.Tasks;
 
 namespace Bulletin_Server.Service
@@ -19,63 +20,80 @@ namespace Bulletin_Server.Service
         #region Bulletin_Service
         public async Task<Response<List<BulletinModel>>> GetAllBulletins()
         {
+            WebOperationContext webOperationContext = WebOperationContext.Current;
+            string requestHeaderValue = webOperationContext.IncomingRequest.Headers["token"].ToString();
+
             List<BulletinModel> tempArr = new List<BulletinModel>();
 
-            try
+            if (ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
             {
-                List<BulletinModel> bulletins = new List<BulletinModel>();
-                using (IDbConnection db = new MySqlConnection(ComDef.DATABASE_URL))
+                try
                 {
-                    db.Open();
+                    List<BulletinModel> bulletins = new List<BulletinModel>();
+                    using (IDbConnection db = new MySqlConnection(ComDef.DATABASE_URL))
+                    {
+                        db.Open();
 
-                    string selectSql = @"
+                        string selectSql = @"
 SELECT
     *
 FROM
     bulletin_tb
 ";
 
-                    bulletins = await bulletinDBManager.GetListAsync(db, selectSql, "");
-                    
-                    if(bulletins != null && bulletins.Count > 0)
-                    {
-                        Console.WriteLine("전체 게시글 조회 : " + ResponseStatus.OK);
-                        var response = new Response<List<BulletinModel>> { data = bulletins, message = ResponseMessage.OK, status = ResponseStatus.OK };
-                        return response;
-                    }
-                    else
-                    {
-                        Console.WriteLine("전체 게시글 조회 : " + ResponseStatus.NotFound);
-                        var response = new Response<List<BulletinModel>> { data = tempArr, message = "게시글이 존재하지 않습니다.", status = ResponseStatus.NotFound };
-                        return response;
+                        bulletins = await bulletinDBManager.GetListAsync(db, selectSql, "");
+
+                        if (bulletins != null && bulletins.Count > 0)
+                        {
+                            Console.WriteLine("전체 게시글 조회 : " + ResponseStatus.OK);
+                            var response = new Response<List<BulletinModel>> { data = bulletins, message = ResponseMessage.OK, status = ResponseStatus.OK };
+                            return response;
+                        }
+                        else
+                        {
+                            Console.WriteLine("전체 게시글 조회 : " + ResponseStatus.NotFound);
+                            var response = new Response<List<BulletinModel>> { data = tempArr, message = "게시글이 존재하지 않습니다.", status = ResponseStatus.NotFound };
+                            return response;
+                        }
                     }
                 }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("GET ALL BULLETINS ERROR : " + e.Message);
-            }
+                catch (Exception e)
+                {
+                    Console.WriteLine("GET ALL BULLETINS ERROR : " + e.Message);
+                }
 
-            var resp = new Response<List<BulletinModel>> { data = tempArr, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.InternalServerError };
-            return resp;
+                var resp = new Response<List<BulletinModel>> { data = tempArr, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.InternalServerError };
+                return resp;
+            }
+            else
+            {
+                Console.WriteLine("전체 게시글 조회 : " + ResponseStatus.BadRequest);
+                var resp = new Response<List<BulletinModel>> { data = tempArr, message = "토큰이 만료되었습니다.", status = ResponseStatus.BadRequest };
+                return resp;
+            }
         }
 
         public async Task<Response> WriteBulletin(string title, string content, string writer)
         {
-            if (title != null && content != null && writer != null && title.Trim().Length > 0 && content.Trim().Length > 0 && writer.Trim().Length > 0)
+            WebOperationContext webOperationContext = WebOperationContext.Current;
+            string requestHeaderValue = webOperationContext.IncomingRequest.Headers["token"].ToString();
+
+            if (ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
             {
-                try
+                if (title != null && content != null && writer != null && title.Trim().Length > 0 && content.Trim().Length > 0 && writer.Trim().Length > 0)
                 {
-                    using (IDbConnection db = new MySqlConnection(ComDef.DATABASE_URL))
+                    try
                     {
-                        db.Open();
+                        using (IDbConnection db = new MySqlConnection(ComDef.DATABASE_URL))
+                        {
+                            db.Open();
 
-                        var model = new BulletinModel();
-                        model.title = title;
-                        model.content = content;
-                        model.writer = writer;
+                            var model = new BulletinModel();
+                            model.title = title;
+                            model.content = content;
+                            model.writer = writer;
 
-                        string insertSql = @"
+                            string insertSql = @"
 INSERT INTO bulletin_tb(
     title,
     content,
@@ -86,44 +104,56 @@ VALUES(
     @content,
     @writer
 );";
-                        await bulletinDBManager.InsertAsync(db, insertSql, model);
-                        await bulletinDBManager.IndexSortSqlAsync(db, ComDef.GetIndexSortSQL("bulletin_tb"));
-                        Console.WriteLine("게시글 작성 : " + ResponseStatus.OK);
-                        var resp = new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
+                            await bulletinDBManager.InsertAsync(db, insertSql, model);
+                            await bulletinDBManager.IndexSortSqlAsync(db, ComDef.GetIndexSortSQL("bulletin_tb"));
+                            Console.WriteLine("게시글 작성 : " + ResponseStatus.OK);
+                            var resp = new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
+                            return resp;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("게시글 작성 : " + ResponseStatus.InternalServerError);
+                        Console.WriteLine("Write Bulletin ERROR : " + e.Message);
+                        var resp = new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.InternalServerError };
                         return resp;
                     }
                 }
-                catch (Exception e)
+                else
                 {
-                    Console.WriteLine("게시글 작성 : " + ResponseStatus.InternalServerError);
-                    Console.WriteLine("Write Bulletin ERROR : " + e.Message);
-                    var resp = new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.InternalServerError };
+                    Console.WriteLine("게시글 작성 : " + ResponseStatus.BadRequest);
+                    var resp = new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
                     return resp;
                 }
             }
             else
             {
                 Console.WriteLine("게시글 작성 : " + ResponseStatus.BadRequest);
-                var resp = new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
+                var resp = new Response { message = "토큰이 만료되었습니다.", status = ResponseStatus.BadRequest };
                 return resp;
             }
         }
 
         public async Task<Response> DeleteBulletin(string writer, int idx)
         {
-            if (idx.ToString() != null && idx.ToString().Length > 0 && writer != null && writer.Length > 0)
+            WebOperationContext webOperationContext = WebOperationContext.Current;
+            string requestHeaderValue = webOperationContext.IncomingRequest.Headers["token"].ToString();
+
+            if (ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
             {
-                try
+                if (idx.ToString() != null && idx.ToString().Length > 0 && writer != null && writer.Length > 0)
                 {
-                    using (IDbConnection db = new MySqlConnection(ComDef.DATABASE_URL))
+                    try
                     {
-                        db.Open();
+                        using (IDbConnection db = new MySqlConnection(ComDef.DATABASE_URL))
+                        {
+                            db.Open();
 
-                        var model = new BulletinModel();
-                        model.idx = idx;
-                        model.writer = writer;
+                            var model = new BulletinModel();
+                            model.idx = idx;
+                            model.writer = writer;
 
-                        string deleteSql = $@"
+                            string deleteSql = $@"
 DELETE FROM
     bulletin_tb
 WHERE
@@ -131,46 +161,58 @@ WHERE
 AND
     idx = '{idx}'    
 ;";
-                        await bulletinDBManager.DeleteAsync(db, deleteSql, model);
-                        await bulletinDBManager.IndexSortSqlAsync(db, ComDef.GetIndexSortSQL("bulletin_tb"));
-                        Console.WriteLine("게시글 삭제 : " + ResponseStatus.OK);
-                        var resp = new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
+                            await bulletinDBManager.DeleteAsync(db, deleteSql, model);
+                            await bulletinDBManager.IndexSortSqlAsync(db, ComDef.GetIndexSortSQL("bulletin_tb"));
+                            Console.WriteLine("게시글 삭제 : " + ResponseStatus.OK);
+                            var resp = new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
+                            return resp;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("게시글 삭제 : " + ResponseStatus.InternalServerError);
+                        Console.WriteLine("Write Bulletin ERROR : " + e.Message);
+                        var resp = new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.InternalServerError };
                         return resp;
                     }
                 }
-                catch (Exception e)
+                else
                 {
-                    Console.WriteLine("게시글 삭제 : " + ResponseStatus.InternalServerError);
-                    Console.WriteLine("Write Bulletin ERROR : " + e.Message);
-                    var resp = new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.InternalServerError };
+                    Console.WriteLine("게시글 삭제 : " + ResponseStatus.BadRequest);
+                    var resp = new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
                     return resp;
                 }
             }
             else
             {
                 Console.WriteLine("게시글 삭제 : " + ResponseStatus.BadRequest);
-                var resp = new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
+                var resp = new Response { message = "토큰이 만료되었습니다.", status = ResponseStatus.BadRequest };
                 return resp;
             }
         }
 
         public async Task<Response> PutBulletin(string title, string content, string writer, int idx)
         {
-            if (title != null && title.Trim().Length > 0 && content != null && title.Trim().Length > 0 && idx.ToString().Length > 0)
+            WebOperationContext webOperationContext = WebOperationContext.Current;
+            string requestHeaderValue = webOperationContext.IncomingRequest.Headers["token"].ToString();
+
+            if (ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
             {
-                try
+                if (title != null && title.Trim().Length > 0 && content != null && title.Trim().Length > 0 && idx.ToString().Length > 0)
                 {
-                    using (IDbConnection db = new MySqlConnection(ComDef.DATABASE_URL))
+                    try
                     {
-                        db.Open();
+                        using (IDbConnection db = new MySqlConnection(ComDef.DATABASE_URL))
+                        {
+                            db.Open();
 
-                        var model = new BulletinModel();
-                        model.title = title;
-                        model.content = content;
-                        model.writer = writer;
-                        model.idx = idx;
+                            var model = new BulletinModel();
+                            model.title = title;
+                            model.content = content;
+                            model.writer = writer;
+                            model.idx = idx;
 
-                        string updateSql = $@"
+                            string updateSql = $@"
 UPDATE 
     bulletin_tb
 SET
@@ -181,42 +223,54 @@ WHERE
 AND
     idx = '{idx}'
 ;";
-                        await bulletinDBManager.UpdateAsync(db, updateSql, model);
-                        await bulletinDBManager.IndexSortSqlAsync(db, updateSql);
-                        Console.WriteLine("게시글 수정 : " + ResponseStatus.OK);
-                        var resp = new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
+                            await bulletinDBManager.UpdateAsync(db, updateSql, model);
+                            await bulletinDBManager.IndexSortSqlAsync(db, updateSql);
+                            Console.WriteLine("게시글 수정 : " + ResponseStatus.OK);
+                            var resp = new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
+                            return resp;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("게시글 수정 : " + ResponseStatus.InternalServerError);
+                        Console.WriteLine("Put Bulletin ERROR : " + e.Message);
+                        var resp = new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.InternalServerError };
                         return resp;
                     }
                 }
-                catch (Exception e)
+                else
                 {
-                    Console.WriteLine("게시글 수정 : " + ResponseStatus.InternalServerError);
-                    Console.WriteLine("Put Bulletin ERROR : " + e.Message);
-                    var resp = new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.InternalServerError };
+                    Console.WriteLine("게시글 수정 : " + ResponseStatus.BadRequest);
+                    var resp = new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
                     return resp;
                 }
             }
             else
             {
                 Console.WriteLine("게시글 수정 : " + ResponseStatus.BadRequest);
-                var resp = new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
+                var resp = new Response { message = "토큰이 만료되었습니다.", status = ResponseStatus.BadRequest };
                 return resp;
             }
         }
 
         public async Task<Response<BulletinModel>> GetSpecificBulletin(string idx)
         {
+            WebOperationContext webOperationContext = WebOperationContext.Current;
+            string requestHeaderValue = webOperationContext.IncomingRequest.Headers["token"].ToString();
+
             BulletinModel tempModel = new BulletinModel();
 
-            try
+            if (ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
             {
-                BulletinModel bulletin = new BulletinModel();
-
-                using (IDbConnection db = new MySqlConnection(ComDef.DATABASE_URL))
+                try
                 {
-                    db.Open();
+                    BulletinModel bulletin = new BulletinModel();
 
-                    string selectSql = $@"
+                    using (IDbConnection db = new MySqlConnection(ComDef.DATABASE_URL))
+                    {
+                        db.Open();
+
+                        string selectSql = $@"
 SELECT
     *
 FROM
@@ -225,29 +279,36 @@ WHERE
     idx = '{idx}'
 ";
 
-                    bulletin = await bulletinDBManager.GetSingleDataAsync(db, selectSql, "");
+                        bulletin = await bulletinDBManager.GetSingleDataAsync(db, selectSql, "");
 
-                    if (bulletin != null)
-                    {
-                        Console.WriteLine("특정 게시글 조회 : " + ResponseStatus.OK);
-                        var response = new Response<BulletinModel> { data = bulletin, message = ResponseMessage.OK, status = ResponseStatus.OK };
-                        return response;
-                    }
-                    else
-                    {
-                        Console.WriteLine("특정 게시글 조회 : " + ResponseStatus.NotFound);
-                        var response = new Response<BulletinModel> { data = tempModel, message = "게시글이 존재하지 않습니다.", status = ResponseStatus.NotFound };
-                        return response;
+                        if (bulletin != null)
+                        {
+                            Console.WriteLine("특정 게시글 조회 : " + ResponseStatus.OK);
+                            var response = new Response<BulletinModel> { data = bulletin, message = ResponseMessage.OK, status = ResponseStatus.OK };
+                            return response;
+                        }
+                        else
+                        {
+                            Console.WriteLine("특정 게시글 조회 : " + ResponseStatus.NotFound);
+                            var response = new Response<BulletinModel> { data = tempModel, message = "게시글이 존재하지 않습니다.", status = ResponseStatus.NotFound };
+                            return response;
+                        }
                     }
                 }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("GET SPECIFIC BULLETIN ERROR : " + e.Message);
-            }
+                catch (Exception e)
+                {
+                    Console.WriteLine("GET SPECIFIC BULLETIN ERROR : " + e.Message);
+                }
 
-            var resp = new Response<BulletinModel> { data = tempModel, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.InternalServerError };
-            return resp;
+                var resp = new Response<BulletinModel> { data = tempModel, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.InternalServerError };
+                return resp;
+            }
+            else
+            {
+                Console.WriteLine("특정 게시글 조회 : " + ResponseStatus.BadRequest);
+                var resp = new Response<BulletinModel> { data = tempModel, message = "토큰이 만료되었습니다.", status = ResponseStatus.BadRequest };
+                return resp;
+            }
         }
         #endregion
 
