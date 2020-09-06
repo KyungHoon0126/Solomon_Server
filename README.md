@@ -2,5 +2,5 @@
 
 > Solomon\_Server
 >
-> Solomon\_Server 프로젝트 실
+> Solomon\_Server 프로젝트 실습
 
