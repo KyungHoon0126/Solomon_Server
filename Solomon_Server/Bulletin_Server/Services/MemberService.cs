@@ -1,9 +1,9 @@
-﻿using Bulletin_Server.Common;
-using Bulletin_Server.DataBase;
-using Bulletin_Server.JWT.Models;
-using Bulletin_Server.JWT.Services;
-using Bulletin_Server.Model.Member;
-using Bulletin_Server.Utils;
+﻿using Solomon_Server.Common;
+using Solomon_Server.DataBase;
+using Solomon_Server.JWT.Models;
+using Solomon_Server.JWT.Services;
+using Solomon_Server.Model.Member;
+using Solomon_Server.Utils;
 using MySql.Data.MySqlClient;
 using Solomon_Server.Common;
 using System;
@@ -13,7 +13,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace Bulletin_Server.Service
+namespace Solomon_Server.Service
 {
     public partial class SolomonService : IService
     {

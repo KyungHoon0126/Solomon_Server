@@ -1,6 +1,6 @@
-﻿using Bulletin_Server.Common;
-using Bulletin_Server.Model.Meal;
-using Bulletin_Server.Utils;
+﻿using Solomon_Server.Common;
+using Solomon_Server.Model.Meal;
+using Solomon_Server.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Solomon_Server.Common;
@@ -10,7 +10,7 @@ using System.ServiceModel.Web;
 using System.Text;
 using hap = HtmlAgilityPack;
 
-namespace Bulletin_Server.Service
+namespace Solomon_Server.Service
 {
     public partial class SolomonService : IService
     {

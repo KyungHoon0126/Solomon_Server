@@ -4,7 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Bulletin_Server.DataBase
+namespace Solomon_Server.DataBase
 {
     public class DBManager<T>
     {

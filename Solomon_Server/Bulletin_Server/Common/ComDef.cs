@@ -1,7 +1,7 @@
-﻿using Bulletin_Server.JWT.Models;
-using Bulletin_Server.JWT.Services;
+﻿using Solomon_Server.JWT.Models;
+using Solomon_Server.JWT.Services;
 
-namespace Bulletin_Server.Common
+namespace Solomon_Server.Common
 {
     public class ComDef
     {

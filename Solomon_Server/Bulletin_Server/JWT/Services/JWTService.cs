@@ -1,11 +1,11 @@
-﻿using Bulletin_Server.JWT.Models;
+﻿using Solomon_Server.JWT.Models;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
-namespace Bulletin_Server.JWT.Services
+namespace Solomon_Server.JWT.Services
 {
     public class JWTService : IAuthService
     {

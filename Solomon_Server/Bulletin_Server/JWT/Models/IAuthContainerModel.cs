@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 
-namespace Bulletin_Server.JWT.Models
+namespace Solomon_Server.JWT.Models
 {
     public interface IAuthContainerModel
     {

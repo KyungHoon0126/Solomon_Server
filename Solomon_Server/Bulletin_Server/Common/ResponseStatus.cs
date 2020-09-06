@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 
-namespace Bulletin_Server.Utils
+namespace Solomon_Server.Utils
 {
     public class ResponseStatus
     {

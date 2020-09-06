@@ -2,7 +2,7 @@
 using System.ServiceModel;
 using System.ServiceModel.Web;
 
-namespace Bulletin_Server
+namespace Solomon_Server
 {
     internal class Server
     {

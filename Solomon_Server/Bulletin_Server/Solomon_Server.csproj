@@ -167,6 +167,7 @@
     <Compile Include="Services\MealService.cs" />
     <Compile Include="Services\MemberService.cs" />
     <Compile Include="Common\ResponseStatus.cs" />
+    <Compile Include="Services\UploadService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

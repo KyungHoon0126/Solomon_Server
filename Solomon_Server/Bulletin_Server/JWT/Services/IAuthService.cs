@@ -1,8 +1,8 @@
-﻿using Bulletin_Server.JWT.Models;
+﻿using Solomon_Server.JWT.Models;
 using System.Collections.Generic;
 using System.Security.Claims;
 
-namespace Bulletin_Server.JWT.Services
+namespace Solomon_Server.JWT.Services
 {
     public interface IAuthService
     {
