@@ -3,13 +3,20 @@ using Solomon_Server.JWT.Services;
 
 namespace Solomon_Server.Common
 {
+    // TODO : Repository Public 시, JWT Secret Key, Meal API Key, DB 정보 제외.
     public class ComDef
     {
+        // Token Verification
         public static JWTContainerModel jWTContainerModel = new JWTContainerModel();
         public static JWTService jwtService = new JWTService(jWTContainerModel.SecretKey);
 
-        public static readonly string DATABASE_URL = $"SERVER=localhost;DATABASE=Bulletin;UID=root;PASSWORD=#kkh03kkh#;allow user variables=true";
+        public static readonly string DATA_BASE_URL = $"SERVER=localhost;DATABASE=Bulletin;UID=root;PASSWORD=#kkh03kkh#;allow user variables=true";
 
+        /// <summary>
+        /// Sort data indexes after insert, delete execution
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <returns></returns>
         public static string GetIndexSortSQL(string tableName)
         {
             string sortSql = $@"
@@ -22,7 +29,5 @@ UPDATE
 ;";
             return sortSql;
         }
-
-        // Repository Public 시 주의 사항 : JWT Secret Key, Meal API Key 제외
     }
 }

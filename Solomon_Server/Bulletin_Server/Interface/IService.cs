@@ -22,7 +22,7 @@ namespace Solomon_Server
         [WebInvoke(Method = "GET", ResponseFormat = WebMessageFormat.Json,
                    BodyStyle = WebMessageBodyStyle.WrappedResponse, UriTemplate = "/meal")]
         [return: MessageParameter(Name = "Meal")]
-        Response<MealInfo> GetMealData();
+        Response<MealInfoModel> GetMealData();
         #endregion
 
         #region Member_Service

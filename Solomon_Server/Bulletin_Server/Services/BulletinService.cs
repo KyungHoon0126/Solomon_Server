@@ -1,15 +1,11 @@
-﻿using Solomon_Server.Common;
-using Solomon_Server.DataBase;
-using Solomon_Server.Utils;
-using MySql.Data.MySqlClient;
+﻿using MySql.Data.MySqlClient;
 using Solomon_Server.Common;
+using Solomon_Server.DataBase;
 using Solomon_Server.Models.Bulletin;
+using Solomon_Server.Utils;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
 using System.ServiceModel.Web;
 using System.Threading.Tasks;
 
@@ -28,59 +24,47 @@ namespace Solomon_Server.Service
 
             List<BulletinModel> tempArr = new List<BulletinModel>();
 
-            if (!(requestHeaderValue == null))
+            // Header에 토큰 값이 제대로 들어왔는지 확인 & 토큰이 유효한지 확인
+            if (!(requestHeaderValue == null) && ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
             {
-                if (ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
+                try
                 {
-                    try
+                    List<BulletinModel> bulletins = new List<BulletinModel>();
+                    using (IDbConnection db = new MySqlConnection(ComDef.DATA_BASE_URL))
                     {
-                        List<BulletinModel> bulletins = new List<BulletinModel>();
-                        using (IDbConnection db = new MySqlConnection(ComDef.DATABASE_URL))
-                        {
-                            db.Open();
+                        db.Open();
 
-                            string selectSql = @"
+                        string selectSql = @"
 SELECT
     *
 FROM
     bulletin_tb
 ";
+                        bulletins = await bulletinDBManager.GetListAsync(db, selectSql, "");
 
-                            bulletins = await bulletinDBManager.GetListAsync(db, selectSql, "");
-
-                            if (bulletins != null && bulletins.Count > 0)
-                            {
-                                Console.WriteLine("전체 게시글 조회 : " + ResponseStatus.OK);
-                                var response = new Response<List<BulletinModel>> { data = bulletins, message = ResponseMessage.OK, status = ResponseStatus.OK };
-                                return response;
-                            }
-                            else
-                            {
-                                Console.WriteLine("전체 게시글 조회 : " + ResponseStatus.NotFound);
-                                var response = new Response<List<BulletinModel>> { data = tempArr, message = "게시글이 존재하지 않습니다.", status = ResponseStatus.NotFound };
-                                return response;
-                            }
+                        if (bulletins != null && bulletins.Count > 0)
+                        {
+                            Console.WriteLine("전체 게시글 조회 : " + ResponseStatus.OK);
+                            return new Response<List<BulletinModel>> { data = bulletins, message = ResponseMessage.OK, status = ResponseStatus.OK };
+                        }
+                        else
+                        {
+                            Console.WriteLine("전체 게시글 조회 : " + ResponseStatus.NOT_FOUND);
+                            return new Response<List<BulletinModel>> { data = tempArr, message = "게시글이 존재하지 않습니다.", status = ResponseStatus.NOT_FOUND };
                         }
                     }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("GET ALL BULLETINS ERROR : " + e.Message);
-                    }
-
-                    var resp = new Response<List<BulletinModel>> { data = tempArr, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.InternalServerError };
-                    return resp;
                 }
-                else
+                catch (Exception e)
                 {
-                    Console.WriteLine("전체 게시글 조회 : " + ResponseStatus.BadRequest);
-                    var resp = new Response<List<BulletinModel>> { data = tempArr, message = ResponseMessage.TOKEN_EXPIRATION, status = ResponseStatus.BadRequest };
-                    return resp;
+                    Console.WriteLine("전체 게시글 조회 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
+                    Console.WriteLine("GET ALL BULLETINS ERROR : " + e.Message);
+                    return new Response<List<BulletinModel>> { data = tempArr, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
                 }
             }
-            else
+            else // Header에 토큰이 전송되지 않음 or 토큰이 유요하지 않음. => 검증 오류.
             {
-                Console.WriteLine("전체 게시글 조회 : " + ResponseStatus.BadRequest);
-                var resp = new Response<List<BulletinModel>> { data = tempArr, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
+                Console.WriteLine("전체 게시글 조회 : " + ResponseStatus.BAD_REQUEST);
+                var resp = new Response<List<BulletinModel>> { data = tempArr, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                 return resp;
             }
         }
@@ -90,76 +74,64 @@ FROM
             WebOperationContext webOperationContext = WebOperationContext.Current;
             string requestHeaderValue = webOperationContext.IncomingRequest.Headers["token"].ToString();
 
-            if (!(requestHeaderValue == null))
+            // Header에 토큰 값이 제대로 들어왔는지 확인 & 토큰이 유효한지 확인
+            if (!(requestHeaderValue == null) && ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
             {
-                if (ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
+                if (title != null && content != null && writer != null && 
+                        title.Trim().Length > 0 && content.Trim().Length > 0 && writer.Trim().Length > 0)
                 {
-                    if (title != null && content != null && writer != null && title.Trim().Length > 0 && content.Trim().Length > 0 && writer.Trim().Length > 0)
+                    try
                     {
-                        try
+                        using (IDbConnection db = new MySqlConnection(ComDef.DATA_BASE_URL))
                         {
-                            using (IDbConnection db = new MySqlConnection(ComDef.DATABASE_URL))
-                            {
-                                db.Open();
+                            db.Open();
 
-                                var model = new BulletinModel();
-                                model.title = title;
-                                model.content = content;
-                                model.writer = writer;
+                            var model = new BulletinModel();
+                            model.title = title;
+                            model.content = content;
+                            model.writer = writer;
 
-                                string insertSql = @"
+                            string insertSql = @"
 INSERT INTO bulletin_tb(
-    title,
-    content,
-    writer
+title,
+content,
+writer
 )
 VALUES(
-    @title,
-    @content,
-    @writer
+@title,
+@content,
+@writer
 );";
-                                if (await bulletinDBManager.InsertAsync(db, insertSql, model) == 1)
-                                {
-                                    await bulletinDBManager.IndexSortSqlAsync(db, ComDef.GetIndexSortSQL("bulletin_tb"));
-                                    Console.WriteLine("게시글 작성 : " + ResponseStatus.OK);
-                                    var resp = new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
-                                    return resp;
-                                }
-                                else
-                                {
-                                    Console.WriteLine("게시글 작성 : " + ResponseStatus.BadRequest);
-                                    var resp = new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
-                                    return resp;
-                                }
+                            if (await bulletinDBManager.InsertAsync(db, insertSql, model) == 1)
+                            {
+                                await bulletinDBManager.IndexSortSqlAsync(db, ComDef.GetIndexSortSQL("bulletin_tb"));
+                                Console.WriteLine("게시글 작성 : " + ResponseStatus.OK);
+                                return new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
+                            }
+                            else
+                            {
+                                Console.WriteLine("게시글 작성 : " + ResponseStatus.BAD_REQUEST);
+                                return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                             }
                         }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine("게시글 작성 : " + ResponseStatus.InternalServerError);
-                            Console.WriteLine("Write Bulletin ERROR : " + e.Message);
-                            var resp = new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.InternalServerError };
-                            return resp;
-                        }
                     }
-                    else
+                    catch (Exception e)
                     {
-                        Console.WriteLine("게시글 작성 : " + ResponseStatus.BadRequest);
-                        var resp = new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
-                        return resp;
+                        Console.WriteLine("게시글 작성 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
+                        Console.WriteLine("WRITE BULLETIN ERROR : " + e.Message);
+                        return new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
                     }
                 }
                 else
                 {
-                    Console.WriteLine("게시글 작성 : " + ResponseStatus.BadRequest);
-                    var resp = new Response { message = ResponseMessage.TOKEN_EXPIRATION, status = ResponseStatus.BadRequest };
-                    return resp;
+                    Console.WriteLine("게시글 작성 : " + ResponseStatus.BAD_REQUEST);
+                    return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                 }
             }
-            else
+            else // Header에 토큰이 전송되지 않음 or 토큰이 유요하지 않음. => 검증 오류.
             {
-                Console.WriteLine("게시글 작성 : " + ResponseStatus.BadRequest);
-                var resp = new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
-                return resp;
+                Console.WriteLine("게시글 작성 : " + ResponseStatus.BAD_REQUEST);
+                return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
             }
         }
 
@@ -168,23 +140,22 @@ VALUES(
             WebOperationContext webOperationContext = WebOperationContext.Current;
             string requestHeaderValue = webOperationContext.IncomingRequest.Headers["token"].ToString();
 
-            if (!(requestHeaderValue == null))
+            // Header에 토큰 값이 제대로 들어왔는지 확인 & 토큰이 유효한지 확인
+            if (!(requestHeaderValue == null) && ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
             {
-                if (ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
+                if (idx.ToString() != null && idx.ToString().Length > 0 && writer != null && writer.Length > 0)
                 {
-                    if (idx.ToString() != null && idx.ToString().Length > 0 && writer != null && writer.Length > 0)
+                    try
                     {
-                        try
+                        using (IDbConnection db = new MySqlConnection(ComDef.DATA_BASE_URL))
                         {
-                            using (IDbConnection db = new MySqlConnection(ComDef.DATABASE_URL))
-                            {
-                                db.Open();
+                            db.Open();
 
-                                var model = new BulletinModel();
-                                model.idx = idx;
-                                model.writer = writer;
+                            var model = new BulletinModel();
+                            model.idx = idx;
+                            model.writer = writer;
 
-                                string deleteSql = $@"
+                            string deleteSql = $@"
 DELETE FROM
     bulletin_tb
 WHERE
@@ -192,48 +163,36 @@ WHERE
 AND
     idx = '{idx}'    
 ;";
-                                if (await bulletinDBManager.DeleteAsync(db, deleteSql, model) == 1)
-                                {
-                                    await bulletinDBManager.IndexSortSqlAsync(db, ComDef.GetIndexSortSQL("bulletin_tb"));
-                                    Console.WriteLine("게시글 삭제 : " + ResponseStatus.OK);
-                                    var resp = new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
-                                    return resp;
-                                }
-                                else
-                                {
-                                    Console.WriteLine("게시글 삭제 : " + ResponseStatus.BadRequest);
-                                    var resp = new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
-                                    return resp;
-                                }
+                            if (await bulletinDBManager.DeleteAsync(db, deleteSql, model) == 1)
+                            {
+                                await bulletinDBManager.IndexSortSqlAsync(db, ComDef.GetIndexSortSQL("bulletin_tb"));
+                                Console.WriteLine("게시글 삭제 : " + ResponseStatus.OK);
+                                return new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
+                            }
+                            else
+                            {
+                                Console.WriteLine("게시글 삭제 : " + ResponseStatus.BAD_REQUEST);
+                                return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                             }
                         }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine("게시글 삭제 : " + ResponseStatus.InternalServerError);
-                            Console.WriteLine("Write Bulletin ERROR : " + e.Message);
-                            var resp = new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.InternalServerError };
-                            return resp;
-                        }
                     }
-                    else
+                    catch (Exception e)
                     {
-                        Console.WriteLine("게시글 삭제 : " + ResponseStatus.BadRequest);
-                        var resp = new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
-                        return resp;
+                        Console.WriteLine("게시글 삭제 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
+                        Console.WriteLine("WRITE BULLETIN ERROR : " + e.Message);
+                        return new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
                     }
                 }
                 else
                 {
-                    Console.WriteLine("게시글 삭제 : " + ResponseStatus.BadRequest);
-                    var resp = new Response { message = ResponseMessage.TOKEN_EXPIRATION, status = ResponseStatus.BadRequest };
-                    return resp;
+                    Console.WriteLine("게시글 삭제 : " + ResponseStatus.BAD_REQUEST);
+                    return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                 }
             }
-            else
+            else // Header에 토큰이 전송되지 않음 or 토큰이 유요하지 않음. => 검증 오류.
             {
-                Console.WriteLine("게시글 삭제 : " + ResponseStatus.BadRequest);
-                var resp = new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
-                return resp;
+                Console.WriteLine("게시글 삭제 : " + ResponseStatus.BAD_REQUEST);
+                return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
             }
         }
 
@@ -242,25 +201,24 @@ AND
             WebOperationContext webOperationContext = WebOperationContext.Current;
             string requestHeaderValue = webOperationContext.IncomingRequest.Headers["token"].ToString();
 
-            if (!(requestHeaderValue == null))
+            // Header에 토큰 값이 제대로 들어왔는지 확인 & 토큰이 유효한지 확인
+            if (!(requestHeaderValue == null) && ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
             {
-                if (ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
+                if (title != null && title.Trim().Length > 0 && content != null && title.Trim().Length > 0 && idx.ToString().Length > 0)
                 {
-                    if (title != null && title.Trim().Length > 0 && content != null && title.Trim().Length > 0 && idx.ToString().Length > 0)
+                    try
                     {
-                        try
+                        using (IDbConnection db = new MySqlConnection(ComDef.DATA_BASE_URL))
                         {
-                            using (IDbConnection db = new MySqlConnection(ComDef.DATABASE_URL))
-                            {
-                                db.Open();
+                            db.Open();
 
-                                var model = new BulletinModel();
-                                model.title = title;
-                                model.content = content;
-                                model.writer = writer;
-                                model.idx = idx;
+                            var model = new BulletinModel();
+                            model.title = title;
+                            model.content = content;
+                            model.writer = writer;
+                            model.idx = idx;
 
-                                string updateSql = $@"
+                            string updateSql = $@"
 UPDATE 
     bulletin_tb
 SET
@@ -271,48 +229,36 @@ WHERE
 AND
     idx = '{idx}'
 ;";
-                                if (await bulletinDBManager.UpdateAsync(db, updateSql, model) == 1)
-                                {
-                                    await bulletinDBManager.IndexSortSqlAsync(db, updateSql);
-                                    Console.WriteLine("게시글 수정 : " + ResponseStatus.OK);
-                                    var resp = new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
-                                    return resp;
-                                }
-                                else
-                                {
-                                    Console.WriteLine("게시글 수정 : " + ResponseStatus.BadRequest);
-                                    var resp = new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
-                                    return resp;
-                                }
+                            if (await bulletinDBManager.UpdateAsync(db, updateSql, model) == 1)
+                            {
+                                await bulletinDBManager.IndexSortSqlAsync(db, updateSql);
+                                Console.WriteLine("게시글 수정 : " + ResponseStatus.OK);
+                                return new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
+                            }
+                            else
+                            {
+                                Console.WriteLine("게시글 수정 : " + ResponseStatus.BAD_REQUEST);
+                                return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                             }
                         }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine("게시글 수정 : " + ResponseStatus.InternalServerError);
-                            Console.WriteLine("Put Bulletin ERROR : " + e.Message);
-                            var resp = new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.InternalServerError };
-                            return resp;
-                        }
                     }
-                    else
+                    catch (Exception e)
                     {
-                        Console.WriteLine("게시글 수정 : " + ResponseStatus.BadRequest);
-                        var resp = new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
-                        return resp;
+                        Console.WriteLine("게시글 수정 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
+                        Console.WriteLine("PUT BULLETIN ERROR : " + e.Message);
+                        return new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
                     }
                 }
                 else
                 {
-                    Console.WriteLine("게시글 수정 : " + ResponseStatus.BadRequest);
-                    var resp = new Response { message = ResponseMessage.TOKEN_EXPIRATION, status = ResponseStatus.BadRequest };
-                    return resp;
+                    Console.WriteLine("게시글 수정 : " + ResponseStatus.BAD_REQUEST);
+                    return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                 }
             }
-            else
+            else // Header에 토큰이 전송되지 않음 or 토큰이 유요하지 않음. => 검증 오류.
             {
-                Console.WriteLine("게시글 수정 : " + ResponseStatus.BadRequest);
-                var resp = new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
-                return resp;
+                Console.WriteLine("게시글 수정 : " + ResponseStatus.BAD_REQUEST);
+                return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
             }
         }
 
@@ -323,19 +269,18 @@ AND
 
             BulletinModel tempModel = new BulletinModel();
 
-            if (!(requestHeaderValue == null))
+            // Header에 토큰 값이 제대로 들어왔는지 확인 & 토큰이 유효한지 확인
+            if (!(requestHeaderValue == null) && ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
             {
-                if (ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
+                try
                 {
-                    try
+                    BulletinModel bulletin = new BulletinModel();
+
+                    using (IDbConnection db = new MySqlConnection(ComDef.DATA_BASE_URL))
                     {
-                        BulletinModel bulletin = new BulletinModel();
+                        db.Open();
 
-                        using (IDbConnection db = new MySqlConnection(ComDef.DATABASE_URL))
-                        {
-                            db.Open();
-
-                            string selectSql = $@"
+                        string selectSql = $@"
 SELECT
     *
 FROM
@@ -343,43 +288,30 @@ FROM
 WHERE
     idx = '{idx}'
 ";
+                        bulletin = await bulletinDBManager.GetSingleDataAsync(db, selectSql, "");
 
-                            bulletin = await bulletinDBManager.GetSingleDataAsync(db, selectSql, "");
-
-                            if (bulletin != null)
-                            {
-                                Console.WriteLine("특정 게시글 조회 : " + ResponseStatus.OK);
-                                var response = new Response<BulletinModel> { data = bulletin, message = ResponseMessage.OK, status = ResponseStatus.OK };
-                                return response;
-                            }
-                            else
-                            {
-                                Console.WriteLine("특정 게시글 조회 : " + ResponseStatus.NotFound);
-                                var response = new Response<BulletinModel> { data = tempModel, message = "게시글이 존재하지 않습니다.", status = ResponseStatus.NotFound };
-                                return response;
-                            }
+                        if (bulletin != null)
+                        {
+                            Console.WriteLine("특정 게시글 조회 : " + ResponseStatus.OK);
+                            return new Response<BulletinModel> { data = bulletin, message = ResponseMessage.OK, status = ResponseStatus.OK };
+                        }
+                        else
+                        {
+                            Console.WriteLine("특정 게시글 조회 : " + ResponseStatus.NOT_FOUND);
+                            return new Response<BulletinModel> { data = tempModel, message = "게시글이 존재하지 않습니다.", status = ResponseStatus.NOT_FOUND };
                         }
                     }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("GET SPECIFIC BULLETIN ERROR : " + e.Message);
-                    }
-
-                    var resp = new Response<BulletinModel> { data = tempModel, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.InternalServerError };
-                    return resp;
                 }
-                else
+                catch (Exception e)
                 {
-                    Console.WriteLine("특정 게시글 조회 : " + ResponseStatus.BadRequest);
-                    var resp = new Response<BulletinModel> { data = tempModel, message = ResponseMessage.TOKEN_EXPIRATION, status = ResponseStatus.BadRequest };
-                    return resp;
+                    Console.WriteLine("GET SPECIFIC BULLETIN ERROR : " + e.Message);
+                    return new Response<BulletinModel> { data = tempModel, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
                 }
             }
-            else
+            else // Header에 토큰이 전송되지 않음 or 토큰이 유요하지 않음. => 검증 오류.
             {
-                Console.WriteLine("특정 게시글 조회 : " + ResponseStatus.BadRequest);
-                var resp = new Response<BulletinModel> { data = tempModel, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
-                return resp;
+                Console.WriteLine("특정 게시글 조회 : " + ResponseStatus.BAD_REQUEST);
+                return new Response<BulletinModel> { data = tempModel, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
             }
         }
         #endregion
@@ -392,61 +324,47 @@ WHERE
 
             List<CommentModel> tempArr = new List<CommentModel>();
 
-            if (!(requestHeaderValue == null))
+            // Header에 토큰 값이 제대로 들어왔는지 확인 & 토큰이 유효한지 확인
+            if (!(requestHeaderValue == null) && ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
             {
-                if (ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
+                try
                 {
-                    try
+                    List<CommentModel> comments = new List<CommentModel>();
+                    using (IDbConnection db = new MySqlConnection(ComDef.DATA_BASE_URL))
                     {
-                        List<CommentModel> comments = new List<CommentModel>();
-                        using (IDbConnection db = new MySqlConnection(ComDef.DATABASE_URL))
-                        {
-                            db.Open();
+                        db.Open();
 
-                            string selectSql = @"
+                        string selectSql = @"
 SELECT
     *
 FROM
     comment_tb
 ";
+                        comments = await commentDBManager.GetListAsync(db, selectSql, "");
 
-                            comments = await commentDBManager.GetListAsync(db, selectSql, "");
-
-                            if (comments != null && comments.Count > 0)
-                            {
-                                Console.WriteLine("전체 댓글 조회 : " + ResponseStatus.OK);
-                                var response = new Response<List<CommentModel>> { data = comments, message = ResponseMessage.OK, status = ResponseStatus.OK };
-                                return response;
-                            }
-                            else
-                            {
-                                Console.WriteLine("전체 댓글 조회 : " + ResponseStatus.NotFound);
-                                var response = new Response<List<CommentModel>> { data = tempArr, message = "댓글이 존재하지 않습니다.", status = ResponseStatus.NotFound };
-                                return response;
-                            }
+                        if (comments != null && comments.Count > 0)
+                        {
+                            Console.WriteLine("전체 댓글 조회 : " + ResponseStatus.OK);
+                            return new Response<List<CommentModel>> { data = comments, message = ResponseMessage.OK, status = ResponseStatus.OK };
+                        }
+                        else
+                        {
+                            Console.WriteLine("전체 댓글 조회 : " + ResponseStatus.NOT_FOUND);
+                            return new Response<List<CommentModel>> { data = tempArr, message = "댓글이 존재하지 않습니다.", status = ResponseStatus.NOT_FOUND };;
                         }
                     }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("GET ALL COMMENTS ERROR : " + e.Message);
-                    }
-
-                    Console.WriteLine("전체 댓글 조회 : " + ResponseStatus.InternalServerError);
-                    var resp = new Response<List<CommentModel>> { data = tempArr, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.InternalServerError };
-                    return resp;
                 }
-                else
+                catch (Exception e)
                 {
-                    Console.WriteLine("전체 댓글 조회 : " + ResponseStatus.BadRequest);
-                    var resp = new Response<List<CommentModel>> { data = tempArr, message = ResponseMessage.TOKEN_EXPIRATION, status = ResponseStatus.BadRequest };
-                    return resp;
+                    Console.WriteLine("전체 댓글 조회 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
+                    Console.WriteLine("GET ALL COMMENTS ERROR : " + e.Message);
+                    return new Response<List<CommentModel>> { data = tempArr, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
                 }
             }
-            else
+            else // Header에 토큰이 전송되지 않음 or 토큰이 유요하지 않음. => 검증 오류.
             {
-                Console.WriteLine("전체 댓글 조회 : " + ResponseStatus.BadRequest);
-                var resp = new Response<List<CommentModel>> { data = tempArr, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
-                return resp;
+                Console.WriteLine("전체 댓글 조회 : " + ResponseStatus.BAD_REQUEST);
+                return new Response<List<CommentModel>> { data = tempArr, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
             }
         }
 
@@ -455,24 +373,24 @@ FROM
             WebOperationContext webOperationContext = WebOperationContext.Current;
             string requestHeaderValue = webOperationContext.IncomingRequest.Headers["token"].ToString();
 
-            if (!(requestHeaderValue == null))
+            // Header에 토큰 값이 제대로 들어왔는지 확인 & 토큰이 유효한지 확인
+            if (!(requestHeaderValue == null) && ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
             {
-                if (ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
+                if (bulletin_idx.ToString().Length > 0 && writer != null && content != null && 
+                        writer.Trim().Length > 0 && content.Trim().Length > 0)
                 {
-                    if (bulletin_idx.ToString().Length > 0 && writer != null && content != null && writer.Trim().Length > 0 && content.Trim().Length > 0)
+                    try
                     {
-                        try
+                        using (IDbConnection db = new MySqlConnection(ComDef.DATA_BASE_URL))
                         {
-                            using (IDbConnection db = new MySqlConnection(ComDef.DATABASE_URL))
-                            {
-                                db.Open();
+                            db.Open();
 
-                                var model = new CommentModel();
-                                model.bulletin_idx = bulletin_idx;
-                                model.writer = writer;
-                                model.content = content;
+                            var model = new CommentModel();
+                            model.bulletin_idx = bulletin_idx;
+                            model.writer = writer;
+                            model.content = content;
 
-                                string insertSql = @"
+                            string insertSql = @"
 INSERT INTO comment_tb(
     bulletin_idx,
     writer,
@@ -483,48 +401,36 @@ VALUES(
     @writer,
     @content
 );";
-                                if (await commentDBManager.InsertAsync(db, insertSql, model) == 1)
-                                {
-                                    await commentDBManager.IndexSortSqlAsync(db, ComDef.GetIndexSortSQL("comment_tb"));
-                                    Console.WriteLine("댓글 작성 : " + ResponseStatus.OK);
-                                    var resp = new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
-                                    return resp;
-                                }
-                                else
-                                {
-                                    Console.WriteLine("댓글 작성 : " + ResponseStatus.BadRequest);
-                                    var resp = new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
-                                    return resp;
-                                }
+                            if (await commentDBManager.InsertAsync(db, insertSql, model) == 1)
+                            {
+                                await commentDBManager.IndexSortSqlAsync(db, ComDef.GetIndexSortSQL("comment_tb"));
+                                Console.WriteLine("댓글 작성 : " + ResponseStatus.OK);
+                                return new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
+                            }
+                            else
+                            {
+                                Console.WriteLine("댓글 작성 : " + ResponseStatus.BAD_REQUEST);
+                                return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                             }
                         }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine("댓글 작성 : " + ResponseStatus.InternalServerError);
-                            Console.WriteLine("Write Comment ERROR : " + e.Message);
-                            var resp = new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.InternalServerError };
-                            return resp;
-                        }
                     }
-                    else
+                    catch (Exception e)
                     {
-                        Console.WriteLine("댓글 작성 : " + ResponseStatus.BadRequest);
-                        var resp = new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
-                        return resp;
+                        Console.WriteLine("댓글 작성 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
+                        Console.WriteLine("WRITE COMMENT ERROR : " + e.Message);
+                        return new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
                     }
                 }
                 else
                 {
-                    Console.WriteLine("댓글 작성 : " + ResponseStatus.BadRequest);
-                    var resp = new Response { message = ResponseMessage.TOKEN_EXPIRATION, status = ResponseStatus.BadRequest };
-                    return resp;
+                    Console.WriteLine("댓글 작성 : " + ResponseStatus.BAD_REQUEST);
+                    return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                 }
             }
-            else
+            else // Header에 토큰이 전송되지 않음 or 토큰이 유요하지 않음. => 검증 오류.
             {
-                Console.WriteLine("댓글 작성 : " + ResponseStatus.BadRequest);
-                var resp = new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
-                return resp;
+                Console.WriteLine("댓글 작성 : " + ResponseStatus.BAD_REQUEST);
+                return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
             }
         }
 
@@ -533,23 +439,22 @@ VALUES(
             WebOperationContext webOperationContext = WebOperationContext.Current;
             string requestHeaderValue = webOperationContext.IncomingRequest.Headers["token"].ToString();
 
-            if (!(requestHeaderValue == null))
+            // Header에 토큰 값이 제대로 들어왔는지 확인 & 토큰이 유효한지 확인
+            if (!(requestHeaderValue == null) && ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
             {
-                if (ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
+                if (idx.ToString() != null && idx.ToString().Length > 0 && writer != null && writer.Length > 0)
                 {
-                    if (idx.ToString() != null && idx.ToString().Length > 0 && writer != null && writer.Length > 0)
+                    try
                     {
-                        try
+                        using (IDbConnection db = new MySqlConnection(ComDef.DATA_BASE_URL))
                         {
-                            using (IDbConnection db = new MySqlConnection(ComDef.DATABASE_URL))
-                            {
-                                db.Open();
+                            db.Open();
 
-                                var model = new CommentModel();
-                                model.writer = writer;
-                                model.idx = idx;
+                            var model = new CommentModel();
+                            model.writer = writer;
+                            model.idx = idx;
 
-                                string deleteSql = $@"
+                            string deleteSql = $@"
 DELETE FROM
     comment_tb
 WHERE
@@ -557,40 +462,36 @@ WHERE
 AND
     idx = '{idx}'    
 ;";
-                                await bulletinDBManager.DeleteAsync(db, deleteSql, model);
+                            if (await bulletinDBManager.DeleteAsync(db, deleteSql, model) == 1)
+                            {
                                 await bulletinDBManager.IndexSortSqlAsync(db, ComDef.GetIndexSortSQL("comment_tb"));
                                 Console.WriteLine("댓글 삭제 : " + ResponseStatus.OK);
-                                var resp = new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
-                                return resp;
+                                return new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
+                            }
+                            else
+                            {
+                                Console.WriteLine("댓글 삭제 : " + ResponseStatus.BAD_REQUEST);
+                                return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                             }
                         }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine("댓글 삭제 : " + ResponseStatus.InternalServerError);
-                            Console.WriteLine("Delete Comment ERROR : " + e.Message);
-                            var resp = new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.InternalServerError };
-                            return resp;
-                        }
                     }
-                    else
+                    catch (Exception e)
                     {
-                        Console.WriteLine("댓글 삭제 : " + ResponseStatus.BadRequest);
-                        var resp = new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
-                        return resp;
+                        Console.WriteLine("댓글 삭제 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
+                        Console.WriteLine("DELETE COMMENT ERROR : " + e.Message);
+                        return new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
                     }
                 }
                 else
                 {
-                    Console.WriteLine("댓글 삭제 : " + ResponseStatus.BadRequest);
-                    var resp = new Response { message = ResponseMessage.TOKEN_EXPIRATION, status = ResponseStatus.BadRequest };
-                    return resp;
+                    Console.WriteLine("댓글 삭제 : " + ResponseStatus.BAD_REQUEST);
+                    return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                 }
             }
-            else
+            else // Header에 토큰이 전송되지 않음 or 토큰이 유요하지 않음. => 검증 오류.
             {
-                Console.WriteLine("댓글 삭제 : " + ResponseStatus.BadRequest);
-                var resp = new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
-                return resp;
+                Console.WriteLine("댓글 삭제 : " + ResponseStatus.BAD_REQUEST);
+                return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
             }
         }
 
@@ -599,24 +500,24 @@ AND
             WebOperationContext webOperationContext = WebOperationContext.Current;
             string requestHeaderValue = webOperationContext.IncomingRequest.Headers["token"].ToString();
 
-            if (!(requestHeaderValue == null))
+            // Header에 토큰 값이 제대로 들어왔는지 확인 & 토큰이 유효한지 확인
+            if (!(requestHeaderValue == null) && ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
             {
-                if (ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
+                if (content != null && content.Trim().Length > 0 && writer != null && 
+                        writer.Trim().Length > 0 && idx.ToString().Length > 0)
                 {
-                    if (content != null && content.Trim().Length > 0 && writer != null && writer.Trim().Length > 0 && idx.ToString().Length > 0)
+                    try
                     {
-                        try
+                        using (IDbConnection db = new MySqlConnection(ComDef.DATA_BASE_URL))
                         {
-                            using (IDbConnection db = new MySqlConnection(ComDef.DATABASE_URL))
-                            {
-                                db.Open();
+                            db.Open();
 
-                                var model = new CommentModel();
-                                model.content = content;
-                                model.writer = writer;
-                                model.idx = idx;
+                            var model = new CommentModel();
+                            model.content = content;
+                            model.writer = writer;
+                            model.idx = idx;
 
-                                string updateSql = $@"
+                            string updateSql = $@"
 UPDATE 
     comment_tb
 SET
@@ -626,48 +527,36 @@ WHERE
 AND
     idx = '{idx}'
 ;";
-                                if (await commentDBManager.UpdateAsync(db, updateSql, model) == 1)
-                                {
-                                    await commentDBManager.IndexSortSqlAsync(db, updateSql);
-                                    Console.WriteLine("댓글 수정 : " + ResponseStatus.OK);
-                                    var resp = new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
-                                    return resp;
-                                }
-                                else
-                                {
-                                    Console.WriteLine("댓글 수정 : " + ResponseStatus.BadRequest);
-                                    var resp = new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
-                                    return resp;
-                                }
+                            if (await commentDBManager.UpdateAsync(db, updateSql, model) == 1)
+                            {
+                                await commentDBManager.IndexSortSqlAsync(db, updateSql);
+                                Console.WriteLine("댓글 수정 : " + ResponseStatus.OK);
+                                return new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
+                            }
+                            else
+                            {
+                                Console.WriteLine("댓글 수정 : " + ResponseStatus.BAD_REQUEST);
+                                return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                             }
                         }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine("댓글 수정 : " + ResponseStatus.InternalServerError);
-                            Console.WriteLine("Put Comment ERROR : " + e.Message);
-                            var resp = new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.InternalServerError };
-                            return resp;
-                        }
                     }
-                    else
+                    catch (Exception e)
                     {
-                        Console.WriteLine("댓글 수정 : " + ResponseStatus.BadRequest);
-                        var resp = new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
-                        return resp;
+                        Console.WriteLine("댓글 수정 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
+                        Console.WriteLine("PUT COMMENT ERROR : " + e.Message);
+                        return new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
                     }
                 }
                 else
                 {
-                    Console.WriteLine("댓글 수정 : " + ResponseStatus.BadRequest);
-                    var resp = new Response { message = ResponseMessage.TOKEN_EXPIRATION, status = ResponseStatus.BadRequest };
-                    return resp;
+                    Console.WriteLine("댓글 수정 : " + ResponseStatus.BAD_REQUEST);
+                    return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                 }
             }
-            else
+            else // Header에 토큰이 전송되지 않음 or 토큰이 유요하지 않음. => 검증 오류.
             {
-                Console.WriteLine("댓글 수정 : " + ResponseStatus.BadRequest);
-                var resp = new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
-                return resp;
+                Console.WriteLine("댓글 수정 : " + ResponseStatus.BAD_REQUEST);
+                return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
             }
         }
 
@@ -678,20 +567,19 @@ AND
 
             List<CommentModel> tempArr = new List<CommentModel>();
 
-            if (!(requestHeaderValue == null))
+            // Header에 토큰 값이 제대로 들어왔는지 확인 & 토큰이 유효한지 확인
+            if (!(requestHeaderValue == null) && ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
             {
-                if (ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
+                if (bulletin_idx.Length > 0 && bulletin_idx != null)
                 {
-                    if (bulletin_idx.Length > 0 && bulletin_idx != null)
+                    try
                     {
-                        try
+                        List<CommentModel> comments = new List<CommentModel>();
+                        using (IDbConnection db = new MySqlConnection(ComDef.DATA_BASE_URL))
                         {
-                            List<CommentModel> comments = new List<CommentModel>();
-                            using (IDbConnection db = new MySqlConnection(ComDef.DATABASE_URL))
-                            {
-                                db.Open();
+                            db.Open();
 
-                                string selectSql = $@"
+                            string selectSql = $@"
 SELECT
     *
 FROM
@@ -699,45 +587,37 @@ FROM
 WHERE
     bulletin_idx = '{bulletin_idx}'
 ";
+                            comments = await commentDBManager.GetListAsync(db, selectSql, "");
 
-                                comments = await commentDBManager.GetListAsync(db, selectSql, "");
-
-                                if (comments != null && comments.Count > 0)
-                                {
-                                    Console.WriteLine("특정 게시글 댓글 전체 조회 : " + ResponseStatus.OK);
-                                    var response = new Response<List<CommentModel>> { data = comments, message = ResponseMessage.OK, status = ResponseStatus.OK };
-                                    return response;
-                                }
-                                else
-                                {
-                                    Console.WriteLine("특정 게시글 댓글 전체 조회 : " + ResponseStatus.NotFound);
-                                    var response = new Response<List<CommentModel>> { data = tempArr, message = "댓글 존재하지 않습니다.", status = ResponseStatus.NotFound };
-                                    return response;
-                                }
+                            if (comments != null && comments.Count > 0)
+                            {
+                                Console.WriteLine("특정 게시글 댓글 전체 조회 : " + ResponseStatus.OK);
+                                return new Response<List<CommentModel>> { data = comments, message = ResponseMessage.OK, status = ResponseStatus.OK };
+                            }
+                            else
+                            {
+                                Console.WriteLine("특정 게시글 댓글 전체 조회 : " + ResponseStatus.NOT_FOUND);
+                                return new Response<List<CommentModel>> { data = tempArr, message = "댓글 존재하지 않습니다.", status = ResponseStatus.NOT_FOUND };
                             }
                         }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine("GET SPECIFIC BULLETIN COMMENTS ERROR : " + e.Message);
-                        }
                     }
-
-                    Console.WriteLine("특정 게시물 댓글 전체 조회 : " + ResponseStatus.InternalServerError);
-                    var resp = new Response<List<CommentModel>> { data = tempArr, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.InternalServerError };
-                    return resp;
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("특정 게시물 댓글 전체 조회 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
+                        Console.WriteLine("GET SPECIFIC BULLETIN COMMENTS ERROR : " + e.Message);
+                        return new Response<List<CommentModel>> { data = tempArr, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
+                    }
                 }
                 else
                 {
-                    Console.WriteLine("특정 게시물 댓글 전체 조회 : " + ResponseStatus.BadRequest);
-                    var resp = new Response<List<CommentModel>> { data = tempArr, message = ResponseMessage.TOKEN_EXPIRATION, status = ResponseStatus.BadRequest };
-                    return resp;
+                    Console.WriteLine("특정 게시물 댓글 전체 조회 : " + ResponseStatus.BAD_REQUEST);
+                    return new Response<List<CommentModel>> { data = tempArr, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                 }
             }
-            else
+            else // Header에 토큰이 전송되지 않음 or 토큰이 유요하지 않음. => 검증 오류.
             {
-                Console.WriteLine("특정 게시물 댓글 전체 조회 : " + ResponseStatus.BadRequest);
-                var resp = new Response<List<CommentModel>> { data = tempArr, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
-                return resp;
+                Console.WriteLine("특정 게시물 댓글 전체 조회 : " + ResponseStatus.BAD_REQUEST);
+                return new Response<List<CommentModel>> { data = tempArr, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
             }
         }
         #endregion
