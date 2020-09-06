@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Solomon_Server.Model.Meal
 {
-    public class MealInfo : BindableBase
+    public class MealInfoModel : BindableBase
     {
         private List<MealServiceDietInfo> Meal;
         [JsonProperty("mealServiceDietInfo")]
