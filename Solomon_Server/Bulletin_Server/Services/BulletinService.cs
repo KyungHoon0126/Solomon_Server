@@ -1,18 +1,19 @@
-﻿using Bulletin_Server.Common;
-using Bulletin_Server.DataBase;
-using Bulletin_Server.Utils;
+﻿using Solomon_Server.Common;
+using Solomon_Server.DataBase;
+using Solomon_Server.Utils;
 using MySql.Data.MySqlClient;
 using Solomon_Server.Common;
-using Solomon_Server.Exceptions;
 using Solomon_Server.Models.Bulletin;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.ServiceModel.Web;
 using System.Threading.Tasks;
 
-namespace Bulletin_Server.Service
+namespace Solomon_Server.Service
 {
     public partial class SolomonService : IService
     {
@@ -379,7 +380,7 @@ WHERE
                 Console.WriteLine("특정 게시글 조회 : " + ResponseStatus.BadRequest);
                 var resp = new Response<BulletinModel> { data = tempModel, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
                 return resp;
-            }    
+            }
         }
         #endregion
 
@@ -447,7 +448,7 @@ FROM
                 var resp = new Response<List<CommentModel>> { data = tempArr, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BadRequest };
                 return resp;
             }
-        }   
+        }
 
         public async Task<Response> WriteComment(int bulletin_idx, string writer, string content)
         {
@@ -740,16 +741,5 @@ WHERE
             }
         }
         #endregion
-
-        public string UploadImage(Stream stream)
-        {
-            byte[] buffer = new byte[10000];
-            stream.Read(buffer, 0, 10000);
-            FileStream f = new FileStream(Environment.SpecialFolder.MyPictures.ToString(), FileMode.OpenOrCreate);
-            f.Write(buffer, 0, buffer.Length);
-            f.Close();
-            stream.Close();
-            return "Received the image on Server";
-        }
     }
 }

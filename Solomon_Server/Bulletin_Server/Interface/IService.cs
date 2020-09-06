@@ -1,12 +1,13 @@
-﻿using Bulletin_Server.Model.Meal;
-using Bulletin_Server.Model.Member;
+﻿using Solomon_Server.Model.Meal;
+using Solomon_Server.Model.Member;
 using Solomon_Server.Models.Bulletin;
 using System.Collections.Generic;
+using System.IO;
 using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Threading.Tasks;
 
-namespace Bulletin_Server
+namespace Solomon_Server
 {
     [ServiceContract]
     public partial interface IService

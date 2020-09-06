@@ -1,4 +1,4 @@
-﻿namespace Bulletin_Server.Model.Member
+﻿namespace Solomon_Server.Model.Member
 {
     public class UserModel
     {

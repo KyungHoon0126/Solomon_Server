@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace Bulletin_Server.Model.Meal
+namespace Solomon_Server.Model.Meal
 {
     public class MealServiceDietInfo
     {

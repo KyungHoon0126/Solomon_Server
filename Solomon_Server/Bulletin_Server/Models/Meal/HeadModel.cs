@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Bulletin_Server.Model.Meal
+namespace Solomon_Server.Model.Meal
 {
     public class Head
     {
