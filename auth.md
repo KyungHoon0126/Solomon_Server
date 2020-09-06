@@ -95,28 +95,40 @@
 {% endapi-method-spec %}
 {% endapi-method %}
 
-{% api-method method="post" host="{SERVER\_IP}:{PORT}" path="/auth/login" %}
+{% api-method method="post" host="{SERVER\_IP}:{PORT}/" path="auth/register" %}
 {% api-method-summary %}
-
+회원가입
 {% endapi-method-summary %}
 
 {% api-method-description %}
-
+회원가입 API
 {% endapi-method-description %}
 
 {% api-method-spec %}
 {% api-method-request %}
-{% api-method-path-parameters %}
-{% api-method-parameter name="" type="string" required=false %}
-
+{% api-method-body-parameters %}
+{% api-method-parameter name="id" type="string" required=true %}
+로그인 ID
 {% endapi-method-parameter %}
-{% endapi-method-path-parameters %}
+
+{% api-method-parameter name="pw" type="string" required=true %}
+로그인 PW
+{% endapi-method-parameter %}
+
+{% api-method-parameter name="name" type="string" required=true %}
+이름
+{% endapi-method-parameter %}
+
+{% api-method-parameter name="email" type="string" required=true %}
+이메일
+{% endapi-method-parameter %}
+{% endapi-method-body-parameters %}
 {% endapi-method-request %}
 
 {% api-method-response %}
-{% api-method-response-example httpCode=400 %}
+{% api-method-response-example httpCode=200 %}
 {% api-method-response-example-description %}
-아이디 or 비밀번호 입력 안
+
 {% endapi-method-response-example-description %}
 
 ```
@@ -126,6 +138,4 @@
 {% endapi-method-response %}
 {% endapi-method-spec %}
 {% endapi-method %}
-
-
 

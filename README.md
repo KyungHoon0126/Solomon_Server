@@ -1,4 +1,2 @@
-# Solomon\_Server
-
-> Solomon\_Server
-
+# Solomon_Server
+> Solomon_Server
