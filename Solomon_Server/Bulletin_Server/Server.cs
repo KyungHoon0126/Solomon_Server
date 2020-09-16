@@ -8,7 +8,7 @@ namespace Solomon_Server
     {
         static void Main(string[] args)
         {
-            var server = new WebServiceHost(typeof(Service.SolomonService));
+            var server = new WebServiceHost(typeof(Services.SolomonService));
             server.AddServiceEndpoint(typeof(IService), new WebHttpBinding(), "");
             server.Open();
             Console.WriteLine("Bulletin Server Start");

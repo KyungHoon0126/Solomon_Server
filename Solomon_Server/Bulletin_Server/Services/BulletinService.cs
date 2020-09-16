@@ -9,7 +9,7 @@ using System.Data;
 using System.ServiceModel.Web;
 using System.Threading.Tasks;
 
-namespace Solomon_Server.Service
+namespace Solomon_Server.Services
 {
     public partial class SolomonService : IService
     {
@@ -40,6 +40,7 @@ SELECT
 FROM
     bulletin_tb
 ";
+                        await bulletinDBManager.IndexSortSqlAsync(db, ComDef.GetIndexSortSQL("bulletin_tb"));
                         bulletins = await bulletinDBManager.GetListAsync(db, selectSql, "");
 
                         if (bulletins != null && bulletins.Count > 0)
@@ -93,14 +94,14 @@ FROM
 
                             string insertSql = @"
 INSERT INTO bulletin_tb(
-title,
-content,
-writer
+    title,
+    content,
+    writer
 )
 VALUES(
-@title,
-@content,
-@writer
+    @title,
+    @content,
+    @writer
 );";
                             if (await bulletinDBManager.InsertAsync(db, insertSql, model) == 1)
                             {
@@ -135,7 +136,7 @@ VALUES(
             }
         }
 
-        public async Task<Response> DeleteBulletin(string writer, int idx)
+        public async Task<Response> DeleteBulletin(string writer, int bulletin_idx)
         {
             WebOperationContext webOperationContext = WebOperationContext.Current;
             string requestHeaderValue = webOperationContext.IncomingRequest.Headers["token"].ToString();
@@ -143,7 +144,7 @@ VALUES(
             // Header에 토큰 값이 제대로 들어왔는지 확인 & 토큰이 유효한지 확인
             if (!(requestHeaderValue == null) && ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
             {
-                if (idx.ToString() != null && idx.ToString().Length > 0 && writer != null && writer.Length > 0)
+                if (bulletin_idx.ToString() != null && bulletin_idx.ToString().Length > 0 && writer != null && writer.Length > 0)
                 {
                     try
                     {
@@ -152,7 +153,7 @@ VALUES(
                             db.Open();
 
                             var model = new BulletinModel();
-                            model.idx = idx;
+                            model.bulletin_idx = bulletin_idx;
                             model.writer = writer;
 
                             string deleteSql = $@"
@@ -161,7 +162,7 @@ DELETE FROM
 WHERE
     writer = '{writer}'
 AND
-    idx = '{idx}'    
+    idx = '{bulletin_idx}'    
 ;";
                             if (await bulletinDBManager.DeleteAsync(db, deleteSql, model) == 1)
                             {
@@ -196,7 +197,7 @@ AND
             }
         }
 
-        public async Task<Response> PutBulletin(string title, string content, string writer, int idx)
+        public async Task<Response> PutBulletin(string title, string content, string writer, int bulletin_idx)
         {
             WebOperationContext webOperationContext = WebOperationContext.Current;
             string requestHeaderValue = webOperationContext.IncomingRequest.Headers["token"].ToString();
@@ -204,7 +205,7 @@ AND
             // Header에 토큰 값이 제대로 들어왔는지 확인 & 토큰이 유효한지 확인
             if (!(requestHeaderValue == null) && ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
             {
-                if (title != null && title.Trim().Length > 0 && content != null && title.Trim().Length > 0 && idx.ToString().Length > 0)
+                if (title != null && title.Trim().Length > 0 && content != null && title.Trim().Length > 0 && bulletin_idx.ToString().Length > 0)
                 {
                     try
                     {
@@ -216,7 +217,7 @@ AND
                             model.title = title;
                             model.content = content;
                             model.writer = writer;
-                            model.idx = idx;
+                            model.bulletin_idx = bulletin_idx;
 
                             string updateSql = $@"
 UPDATE 
@@ -227,7 +228,7 @@ SET
 WHERE
     writer = '{writer}'
 AND
-    idx = '{idx}'
+    idx = '{bulletin_idx}'
 ;";
                             if (await bulletinDBManager.UpdateAsync(db, updateSql, model) == 1)
                             {
@@ -262,7 +263,7 @@ AND
             }
         }
 
-        public async Task<Response<BulletinModel>> GetSpecificBulletin(string idx)
+        public async Task<Response<BulletinModel>> GetSpecificBulletin(string bulletin_idx)
         {
             WebOperationContext webOperationContext = WebOperationContext.Current;
             string requestHeaderValue = webOperationContext.IncomingRequest.Headers["token"].ToString();
@@ -286,7 +287,7 @@ SELECT
 FROM
     bulletin_tb
 WHERE
-    idx = '{idx}'
+    idx = '{bulletin_idx}'
 ";
                         bulletin = await bulletinDBManager.GetSingleDataAsync(db, selectSql, "");
 
@@ -340,6 +341,7 @@ SELECT
 FROM
     comment_tb
 ";
+                        await bulletinDBManager.IndexSortSqlAsync(db, ComDef.GetIndexSortSQL("comment_tb"));
                         comments = await commentDBManager.GetListAsync(db, selectSql, "");
 
                         if (comments != null && comments.Count > 0)
@@ -434,7 +436,7 @@ VALUES(
             }
         }
 
-        public async Task<Response> DeleteComment(string writer, int idx)
+        public async Task<Response> DeleteComment(string writer, int comment_idx)
         {
             WebOperationContext webOperationContext = WebOperationContext.Current;
             string requestHeaderValue = webOperationContext.IncomingRequest.Headers["token"].ToString();
@@ -442,7 +444,7 @@ VALUES(
             // Header에 토큰 값이 제대로 들어왔는지 확인 & 토큰이 유효한지 확인
             if (!(requestHeaderValue == null) && ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
             {
-                if (idx.ToString() != null && idx.ToString().Length > 0 && writer != null && writer.Length > 0)
+                if (comment_idx.ToString() != null && comment_idx.ToString().Length > 0 && writer != null && writer.Length > 0)
                 {
                     try
                     {
@@ -452,7 +454,7 @@ VALUES(
 
                             var model = new CommentModel();
                             model.writer = writer;
-                            model.idx = idx;
+                            model.comment_idx = comment_idx;
 
                             string deleteSql = $@"
 DELETE FROM
@@ -460,7 +462,7 @@ DELETE FROM
 WHERE
     writer = '{writer}'
 AND
-    idx = '{idx}'    
+    idx = '{comment_idx}'    
 ;";
                             if (await bulletinDBManager.DeleteAsync(db, deleteSql, model) == 1)
                             {
@@ -495,7 +497,7 @@ AND
             }
         }
 
-        public async Task<Response> PutComment(string content, string writer, int idx)
+        public async Task<Response> PutComment(string content, string writer, int comment_idx)
         {
             WebOperationContext webOperationContext = WebOperationContext.Current;
             string requestHeaderValue = webOperationContext.IncomingRequest.Headers["token"].ToString();
@@ -504,7 +506,7 @@ AND
             if (!(requestHeaderValue == null) && ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
             {
                 if (content != null && content.Trim().Length > 0 && writer != null && 
-                        writer.Trim().Length > 0 && idx.ToString().Length > 0)
+                        writer.Trim().Length > 0 && comment_idx.ToString().Length > 0)
                 {
                     try
                     {
@@ -515,7 +517,7 @@ AND
                             var model = new CommentModel();
                             model.content = content;
                             model.writer = writer;
-                            model.idx = idx;
+                            model.comment_idx = comment_idx;
 
                             string updateSql = $@"
 UPDATE 
@@ -525,7 +527,7 @@ SET
 WHERE
     writer = '{writer}'
 AND
-    idx = '{idx}'
+    idx = '{comment_idx}'
 ;";
                             if (await commentDBManager.UpdateAsync(db, updateSql, model) == 1)
                             {
