@@ -8,7 +8,7 @@
         public string email { get; set; }
     }
 
-    public class Member : UserModel
+    public class MemberModel : UserModel
     {
         public string pw { get; set; }
     }

@@ -2,7 +2,6 @@
 using Solomon_Server.Model.Member;
 using Solomon_Server.Models.Bulletin;
 using System.Collections.Generic;
-using System.IO;
 using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Threading.Tasks;
@@ -20,8 +19,7 @@ namespace Solomon_Server
         /// <returns></returns>
         [OperationContract]
         [WebInvoke(Method = "GET", ResponseFormat = WebMessageFormat.Json,
-                   BodyStyle = WebMessageBodyStyle.WrappedResponse, UriTemplate = "/meal")]
-        [return: MessageParameter(Name = "Meal")]
+                   BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/meal")]
         Response<MealInfoModel> GetMealData();
         #endregion
 
@@ -36,10 +34,9 @@ namespace Solomon_Server
         /// <returns></returns>
         [OperationContract]
         [WebInvoke(Method = "POST", ResponseFormat = WebMessageFormat.Json,
-                   BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/auth/register")]
-        [return: MessageParameter(Name = "SignUp")]
+                   BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/auth/register")]
         Task<Response> SignUp(string id, string pw, string name, string email);
-        
+
 
         /// <summary>
         /// 로그인
@@ -49,8 +46,7 @@ namespace Solomon_Server
         /// <returns></returns>
         [OperationContract]
         [WebInvoke(Method = "POST", ResponseFormat = WebMessageFormat.Json,
-                   BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/auth/login")]
-        [return: MessageParameter(Name = "Login")]
+                   BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/auth/login")]
         Task<Response<UserModel>> Login(string id, string pw);
         #endregion
 
@@ -62,8 +58,7 @@ namespace Solomon_Server
         /// <returns></returns>
         [OperationContract]
         [WebInvoke(Method = "GET", ResponseFormat = WebMessageFormat.Json,
-                   BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin")]
-        [return: MessageParameter(Name = "Bulletin")]
+                   BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/bulletin")]
         Task<Response<List<BulletinModel>>> GetAllBulletins();
 
         /// <summary>
@@ -76,21 +71,19 @@ namespace Solomon_Server
         /// <returns></returns>
         [OperationContract]
         [WebInvoke(Method = "POST", ResponseFormat = WebMessageFormat.Json,
-                   BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin")]
-        [return: MessageParameter(Name = "Write_Bulletin")]
+                   BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/bulletin")]
         Task<Response> WriteBulletin(string title, string content, string writer);
 
         /// <summary>
         /// 게시글 삭제
         /// Headers : token(string)
         /// </summary>
-        /// <param name="idx", 게시글 idx></param>
+        /// <param name="bulletin_idx", 게시글 idx></param>
         /// <returns></returns>
         [OperationContract]
         [WebInvoke(Method = "DELETE", ResponseFormat = WebMessageFormat.Json,
-                   BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin")]
-        [return: MessageParameter(Name = "Delete_Bulletin")]
-        Task<Response> DeleteBulletin(string writer, int idx);
+                   BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/bulletin")]
+        Task<Response> DeleteBulletin(string writer, int bulletin_idx);
 
         /// <summary>
         /// 게시글 수정
@@ -99,13 +92,12 @@ namespace Solomon_Server
         /// <param name="title", 게시글 제목></param>
         /// <param name="content", 게시글 내용></param>
         /// <param name="writer", 작성자></param>
-        /// <param name="idx", 게시글 idx></param>
+        /// <param name="bulletin_idx", 게시글 idx></param>
         /// <returns></returns>
         [OperationContract]
         [WebInvoke(Method = "PUT", ResponseFormat = WebMessageFormat.Json,
-                   BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin")]
-        [return: MessageParameter(Name = "Put_Bulletin")]
-        Task<Response> PutBulletin(string title, string content, string writer, int idx);
+                   BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/bulletin")]
+        Task<Response> PutBulletin(string title, string content, string writer, int bulletin_idx);
 
         /// <summary>
         /// 특정 게시물 조회
@@ -115,8 +107,7 @@ namespace Solomon_Server
         /// <returns></returns>
         [OperationContract]
         [WebInvoke(Method = "GET", ResponseFormat = WebMessageFormat.Json,
-                   BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin/{idx}")]
-        [return: MessageParameter(Name = "Specific_Bulletin")]
+                   BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/bulletin/{idx}")]
         Task<Response<BulletinModel>> GetSpecificBulletin(string idx);
         #endregion
 
@@ -128,7 +119,7 @@ namespace Solomon_Server
         /// <returns>Comments</returns>
         [OperationContract]
         [WebInvoke(Method = "GET", ResponseFormat = WebMessageFormat.Json,
-                   BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin/comment")]
+                   BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/bulletin/comment")]
         [return: MessageParameter(Name = "Comment")]
         Task<Response<List<CommentModel>>> GetAllComments();
 
@@ -142,7 +133,7 @@ namespace Solomon_Server
         /// <returns></returns>
         [OperationContract]
         [WebInvoke(Method = "POST", ResponseFormat = WebMessageFormat.Json,
-                   BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin/comment")]
+                   BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/bulletin/comment")]
         [return: MessageParameter(Name = "Write_Comment")]
         Task<Response> WriteComment(int bulletin_idx, string writer, string content);
 
@@ -151,13 +142,13 @@ namespace Solomon_Server
         /// Headers : token(string)
         /// </summary>
         /// <param name="writer", 작성자></param>
-        /// <param name="idx", 댓글 idx></param>
+        /// <param name="comment_idx", 댓글 idx></param>
         /// <returns></returns>
         [OperationContract]
         [WebInvoke(Method = "DELETE", ResponseFormat = WebMessageFormat.Json,
-                   BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin/comment")]
+                   BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/bulletin/comment")]
         [return: MessageParameter(Name = "Delete_Comment")]
-        Task<Response> DeleteComment(string writer, int idx);
+        Task<Response> DeleteComment(string writer, int comment_idx);
 
         /// <summary>
         /// 댓글 수정
@@ -165,13 +156,13 @@ namespace Solomon_Server
         /// </summary>
         /// <param name="content", 댓글 내용></param>
         /// <param name="writer", 작성자></param>
-        /// <param name="idx", 댓글 idx></param>
+        /// <param name="comment_idx", 댓글 idx></param>
         /// <returns></returns>
         [OperationContract]
         [WebInvoke(Method = "PUT", ResponseFormat = WebMessageFormat.Json,
-                   BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin/comment")]
+                   BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/bulletin/comment")]
         [return: MessageParameter(Name = "Put_Comment")]
-        Task<Response> PutComment(string content, string writer, int idx);
+        Task<Response> PutComment(string content, string writer, int comment_idx);
 
         /// <summary>
         /// 특정 게시물 전체 댓글 조회
@@ -181,8 +172,15 @@ namespace Solomon_Server
         /// <returns></returns>
         [OperationContract]
         [WebInvoke(Method = "GET", ResponseFormat = WebMessageFormat.Json,
-                   BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/bulletin/comment/{bulletin_idx}")]
+                   BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/bulletin/comment/{bulletin_idx}")]
         Task<Response<List<CommentModel>>> GetSpecificComments(string bulletin_idx);
+        #endregion
+
+        #region CheckOverlap_Service
+        [OperationContract]
+        [WebInvoke(Method = "GET", ResponseFormat = WebMessageFormat.Json,
+                   BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/auth/check/email?email={email}")]
+        Task<Response> CheckEmailOverlap(string email);
         #endregion
     }
 
@@ -197,5 +195,10 @@ namespace Solomon_Server
         public string message { get; set; }
         public int status { get; set; }
         public T data { get; set; }
+    }
+
+    public sealed class Nothing
+    {
+        public static Nothing AtAll => null;
     }
 }

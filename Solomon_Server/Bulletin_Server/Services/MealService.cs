@@ -9,7 +9,7 @@ using System.ServiceModel.Web;
 using System.Text;
 using hap = HtmlAgilityPack;
 
-namespace Solomon_Server.Service
+namespace Solomon_Server.Services
 {
     public partial class SolomonService : IService
     {

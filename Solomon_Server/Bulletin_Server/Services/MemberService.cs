@@ -12,7 +12,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace Solomon_Server.Service
+namespace Solomon_Server.Services
 {
     public partial class SolomonService : IService
     {
@@ -30,7 +30,7 @@ namespace Solomon_Server.Service
                     {
                         db.Open();
 
-                        var model = new Member();
+                        var model = new MemberModel();
                         model.id = id;
                         model.pw = pw;
                         model.name = name;
