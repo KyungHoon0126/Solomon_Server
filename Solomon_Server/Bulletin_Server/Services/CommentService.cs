@@ -137,7 +137,7 @@ namespace Solomon_Server.Services
                         return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                     }
                 }
-                else // 토큰이 유요하지 않음. => 검증 오류.
+                else // 토큰이 유효하지 않음. => 검증 오류.
                 {
                     Console.WriteLine("댓글 작성 : " + ResponseStatus.BAD_REQUEST);
                     return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
@@ -158,7 +158,6 @@ namespace Solomon_Server.Services
             {
                 string requestHeaderValue = webOperationContext.IncomingRequest.Headers["token"].ToString();
 
-                // Header에 토큰 값이 제대로 들어왔는지 확인 & 토큰이 유효한지 확인
                 if (!(requestHeaderValue == null) && ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
                 {
                     if (comment_idx.ToString() != null && comment_idx.ToString().Length > 0 && writer != null && writer.Length > 0)
@@ -296,12 +295,11 @@ namespace Solomon_Server.Services
         public async Task<Response<CommentsResult>> GetSpecificComments(string bulletin_idx)
         {
             WebOperationContext webOperationContext = WebOperationContext.Current;
+            List<CommentModel> tempArr = new List<CommentModel>();
 
             if (ComDef.InspectionHeaderValue(webOperationContext))
             {
                 string requestHeaderValue = webOperationContext.IncomingRequest.Headers["token"].ToString();
-
-                List<CommentModel> tempArr = new List<CommentModel>();
 
                 if (!(requestHeaderValue == null) && ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
                 {

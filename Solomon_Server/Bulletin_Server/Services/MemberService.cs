@@ -100,7 +100,7 @@ AND
 ;";
                         var response = await userDBManager.GetSingleDataAsync(db, selectSql, id);
 
-                        if (response != null) // 회원정보 조회 시, 값이 제대로 들어왔는지 확인.
+                        if (response != null) 
                         {
                             user.id = id;
                             user.name = response.name;
