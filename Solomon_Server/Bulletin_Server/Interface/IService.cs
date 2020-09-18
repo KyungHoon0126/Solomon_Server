@@ -59,8 +59,7 @@ namespace Solomon_Server
         /// <returns></returns>
         [OperationContract]
         [WebInvoke(Method = "GET", ResponseFormat = WebMessageFormat.Json,
-                   BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/bulletin")]
-        //Task<Response<List<BulletinModel>>> GetAllBulletins();
+                   BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/bulletin/post")]
         Task<Response<BulletinsResult>> GetAllBulletins();
 
         /// <summary>
@@ -73,7 +72,7 @@ namespace Solomon_Server
         /// <returns></returns>
         [OperationContract]
         [WebInvoke(Method = "POST", ResponseFormat = WebMessageFormat.Json,
-                   BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/bulletin")]
+                   BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/bulletin/post")]
         Task<Response> WriteBulletin(string title, string content, string writer);
 
         /// <summary>
@@ -84,7 +83,7 @@ namespace Solomon_Server
         /// <returns></returns>
         [OperationContract]
         [WebInvoke(Method = "DELETE", ResponseFormat = WebMessageFormat.Json,
-                   BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/bulletin")]
+                   BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/bulletin/post")]
         Task<Response> DeleteBulletin(string writer, int bulletin_idx);
 
         /// <summary>
@@ -98,7 +97,7 @@ namespace Solomon_Server
         /// <returns></returns>
         [OperationContract]
         [WebInvoke(Method = "PUT", ResponseFormat = WebMessageFormat.Json,
-                   BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/bulletin")]
+                   BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/bulletin/post")]
         Task<Response> PutBulletin(string title, string content, string writer, int bulletin_idx);
 
         /// <summary>
@@ -109,7 +108,7 @@ namespace Solomon_Server
         /// <returns></returns>
         [OperationContract]
         [WebInvoke(Method = "GET", ResponseFormat = WebMessageFormat.Json,
-                   BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/bulletin/{idx}")]
+                   BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/bulletin/post/{idx}")]
         Task<Response<BulletinResult>> GetSpecificBulletin(string idx);
         #endregion
 
