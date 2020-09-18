@@ -19,6 +19,7 @@ namespace Solomon_Server.Services
         #region Bulletin_Service
         public async Task<Response<BulletinsResult>> GetAllBulletins()
         {
+            // requestHeaderValue : 값 자체가 들어오지 않을 경우 Exception 처리.
             WebOperationContext webOperationContext = WebOperationContext.Current;
             string requestHeaderValue = webOperationContext.IncomingRequest.Headers["token"].ToString();
 

@@ -16,6 +16,7 @@ namespace Solomon_Server.Services
         #region Meal_Service
         public Response<MealInfoModel> GetMealData()
         {
+            // requestHeaderValue : 값 자체가 들어오지 않을 경우 Exception 처리.
             WebOperationContext webOperationContext = WebOperationContext.Current;
             string requestHeaderValue = webOperationContext.IncomingRequest.Headers["token"].ToString();
 
