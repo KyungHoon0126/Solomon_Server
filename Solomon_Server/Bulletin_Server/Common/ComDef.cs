@@ -1,5 +1,6 @@
 ﻿using Solomon_Server.JWT.Models;
 using Solomon_Server.JWT.Services;
+using System.ServiceModel.Web;
 
 namespace Solomon_Server.Common
 {
@@ -11,6 +12,23 @@ namespace Solomon_Server.Common
         public static JWTService jwtService = new JWTService(jWTContainerModel.SecretKey);
 
         public static readonly string DATA_BASE_URL = $"SERVER=localhost;DATABASE=Bulletin;UID=root;PASSWORD=#kkh03kkh#;allow user variables=true";
+
+        /// <summary>
+        /// Inpection Request Header's Value
+        /// </summary>
+        /// <param name="webOperationContext"></param>
+        /// <returns></returns>
+        public static bool InspectionHeaderValue(WebOperationContext webOperationContext)
+        {
+            if (webOperationContext.IncomingRequest.Headers == null)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
 
         /// <summary>
         /// Sort data indexes after insert, delete execution

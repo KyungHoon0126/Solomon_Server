@@ -17,46 +17,53 @@ namespace Solomon_Server.Services
         public Response<MealInfoModel> GetMealData()
         {
             WebOperationContext webOperationContext = WebOperationContext.Current;
-            string requestHeaderValue = webOperationContext.IncomingRequest.Headers["token"].ToString();
-
             MealInfoModel tempModel = new MealInfoModel();
-
-            // Header에 토큰 값이 제대로 들어왔는지 확인 & 토큰이 유효한지 확인
-            if (!(requestHeaderValue == null) && ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
+            
+            if (ComDef.InspectionHeaderValue(webOperationContext))
             {
-                WebClient webClient = new WebClient();
-                webClient.Headers["Content-Type"] = "application/json";
-                webClient.Encoding = Encoding.UTF8;
+                string requestHeaderValue = webOperationContext.IncomingRequest.Headers["token"].ToString();
 
-                string html = webClient.DownloadString("https://open.neis.go.kr/hub/mealServiceDietInfo?ATPT_OFCDC_SC_CODE=D10&SD_SCHUL_CODE=7240393&MLSV_YMD="
-                                                        + DateTime.Now.ToString("yyyyMM") + "&type=json&KEY=9b89605504b946bfab0c06c0ceb0a69a");
-                hap.HtmlDocument document = new hap.HtmlDocument();
-                document.LoadHtml(html);
-
-                JObject jObject = JObject.Parse(document.Text);
-
-                MealInfoModel mealData = JsonConvert.DeserializeObject<MealInfoModel>(jObject.ToString());
-
-                for (int i = 0; i < mealData.meal.Count; i++)
+                if (!(requestHeaderValue == null) && ComDef.jwtService.IsTokenValid(requestHeaderValue) == true)
                 {
-                    if (mealData.meal[i].row == null)
+                    WebClient webClient = new WebClient();
+                    webClient.Headers["Content-Type"] = "application/json";
+                    webClient.Encoding = Encoding.UTF8;
+
+                    string html = webClient.DownloadString("https://open.neis.go.kr/hub/mealServiceDietInfo?ATPT_OFCDC_SC_CODE=D10&SD_SCHUL_CODE=7240393&MLSV_YMD="
+                                                            + DateTime.Now.ToString("yyyyMM") + "&type=json&KEY=9b89605504b946bfab0c06c0ceb0a69a");
+                    hap.HtmlDocument document = new hap.HtmlDocument();
+                    document.LoadHtml(html);
+
+                    JObject jObject = JObject.Parse(document.Text);
+
+                    MealInfoModel mealData = JsonConvert.DeserializeObject<MealInfoModel>(jObject.ToString());
+
+                    for (int i = 0; i < mealData.meal.Count; i++)
                     {
-                        mealData.meal.Remove(mealData.meal[i]);
+                        if (mealData.meal[i].row == null)
+                        {
+                            mealData.meal.Remove(mealData.meal[i]);
+                        }
+                    }
+
+                    if (mealData == null || mealData.meal.Count < 0)
+                    {
+                        Console.WriteLine("급식 : " + ResponseStatus.NOT_FOUND);
+                        return new Response<MealInfoModel> { data = tempModel, message = "급식 설정이 필요합니다.", status = ResponseStatus.NOT_FOUND };
+                    }
+                    else
+                    {
+                        Console.WriteLine("급식 : " + ResponseStatus.OK);
+                        return new Response<MealInfoModel> { data = mealData, message = "급식 조회에 성공하였습니다.", status = ResponseStatus.OK };
                     }
                 }
-
-                if (mealData == null || mealData.meal.Count < 0)
+                else // 토큰이 유효하지 않음. => 검증 오류.
                 {
-                    Console.WriteLine("급식 : " + ResponseStatus.NOT_FOUND);
-                    return new Response<MealInfoModel> { data = tempModel, message = "급식 설정이 필요합니다.", status = ResponseStatus.NOT_FOUND };
-                }
-                else
-                {
-                    Console.WriteLine("급식 : " + ResponseStatus.OK);
-                    return new Response<MealInfoModel> { data = mealData, message = "급식 조회에 성공하였습니다.", status = ResponseStatus.OK };
+                    Console.WriteLine("급식 : " + ResponseStatus.BAD_REQUEST);
+                    return new Response<MealInfoModel> { data = tempModel, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                 }
             }
-            else // Header에 토큰이 전송되지 않음 or 토큰이 유요하지 않음. => 검증 오류.
+            else
             {
                 Console.WriteLine("급식 : " + ResponseStatus.BAD_REQUEST);
                 return new Response<MealInfoModel> { data = tempModel, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
