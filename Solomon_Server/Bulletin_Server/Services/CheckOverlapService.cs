@@ -13,6 +13,7 @@ namespace Solomon_Server.Services
     {
         DBManager<UserModel> checkOverlapDBManager = new DBManager<UserModel>();
 
+        #region CheckOverlap_Service
         public async Task<Response> CheckEmailOverlap(string email)
         {
             if (email != null && email.Length > 0 && email.Trim().Length > 0)
@@ -58,5 +59,6 @@ WHERE
                 return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
             }
         }
+        #endregion
     }
 }
