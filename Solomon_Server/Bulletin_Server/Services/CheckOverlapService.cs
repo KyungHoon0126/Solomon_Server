@@ -40,8 +40,8 @@ WHERE
                         }
                         else
                         {
-                            Console.WriteLine("이메일 중복 확인 : " + ResponseStatus.BAD_REQUEST);
-                            return new Response { message = "중복된 이메일.", status = ResponseStatus.BAD_REQUEST };
+                            Console.WriteLine("이메일 중복 확인 : " + ResponseStatus.CONFLICT);
+                            return new Response { message = "중복된 이메일.", status = ResponseStatus.CONFLICT };
                         }
                     }
                 }

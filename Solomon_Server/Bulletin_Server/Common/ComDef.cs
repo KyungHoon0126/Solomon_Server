@@ -17,7 +17,7 @@ namespace Solomon_Server.Common
         /// </summary>
         /// <param name="tableName"></param>
         /// <returns></returns>
-        public static string GetIndexSortSQL(string tableName)
+        public static string GetIndexSortSQL(string idx, string tableName)
         {
             string sortSql = $@"
 ALTER 
@@ -25,7 +25,7 @@ ALTER
 SET 
     @COUNT = 0;
 UPDATE
-    bulletin.{tableName} SET idx = @COUNT:= @COUNT + 1
+    bulletin.{tableName} SET {idx} = @COUNT:= @COUNT + 1
 ;";
             return sortSql;
         }
