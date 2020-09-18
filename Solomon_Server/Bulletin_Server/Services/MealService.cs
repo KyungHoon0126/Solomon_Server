@@ -16,15 +16,10 @@ namespace Solomon_Server.Services
         #region Meal_Service
         public Response<MealInfoModel> GetMealData()
         {
-            MealInfoModel tempModel = new MealInfoModel();
             WebOperationContext webOperationContext = WebOperationContext.Current;
+            MealInfoModel tempModel = new MealInfoModel();
             
-            if (webOperationContext.IncomingRequest.Headers == null)
-            {
-                Console.WriteLine("급식 : " + ResponseStatus.BAD_REQUEST);
-                return new Response<MealInfoModel> { data = tempModel, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
-            }
-            else
+            if (ComDef.InspectionHeaderValue(webOperationContext))
             {
                 string requestHeaderValue = webOperationContext.IncomingRequest.Headers["token"].ToString();
 
@@ -68,6 +63,11 @@ namespace Solomon_Server.Services
                     Console.WriteLine("급식 : " + ResponseStatus.BAD_REQUEST);
                     return new Response<MealInfoModel> { data = tempModel, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                 }
+            }
+            else
+            {
+                Console.WriteLine("급식 : " + ResponseStatus.BAD_REQUEST);
+                return new Response<MealInfoModel> { data = tempModel, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
             }
         }
         #endregion
