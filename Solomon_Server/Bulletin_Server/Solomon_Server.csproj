@@ -161,7 +161,10 @@
     <Compile Include="Models\Meal\ResultModel.cs" />
     <Compile Include="Models\Meal\RowModel.cs" />
     <Compile Include="Models\Member\UserModel.cs" />
-    <Compile Include="Results\BulletinsResults.cs" />
+    <Compile Include="Results\BulletinResults\BulletinResult.cs" />
+    <Compile Include="Results\BulletinResults\BulletinsResult.cs" />
+    <Compile Include="Results\CommentResult\CommentsResult.cs" />
+    <Compile Include="Results\MemberResult\MemberResult.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\BulletinService.cs" />
