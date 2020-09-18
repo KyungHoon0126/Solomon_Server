@@ -74,7 +74,9 @@ VALUES(
         public async Task<Response<MemberResult>> Login(string id, string pw)
         {
             UserModel tempModel = new UserModel();
-
+            string tempToken = "";
+            string tempRefreshToken = "";
+            
             if (id != null && pw != null && id.Trim().Length > 0 && pw.Trim().Length > 0)
             {
                 try
@@ -108,7 +110,7 @@ AND
                             IAuthService authService = new JWTService(model.SecretKey);
 
                             string token = authService.GenerateToken(model);
-                            user.token = token;
+                            // TODO : RefreshToken 발급. => 현재 임시로 빈 값 보냄
 
                             if (!authService.IsTokenValid(token))
                             {
@@ -121,13 +123,13 @@ AND
                                 Console.WriteLine("Login Eamil : " + claims.FirstOrDefault(x => x.Type.Equals(ClaimTypes.Email)).Value);
 
                                 Console.WriteLine("로그인 : " + ResponseStatus.OK);
-                                return new Response<MemberResult> { data = new MemberResult { userModel = user }, message = ResponseMessage.OK, status = ResponseStatus.OK };
+                                return new Response<MemberResult> { data = new MemberResult { token = token, refreshToken = tempRefreshToken, member = user }, message = ResponseMessage.OK, status = ResponseStatus.OK };
                             }
                         }
                         else
                         {
                             Console.WriteLine("로그인 : " + ResponseStatus.UNAUTHORIZED);
-                            return new Response<MemberResult> { data = new MemberResult { userModel = tempModel }, message = ResponseMessage.UNAUTHORIZED, status = ResponseStatus.UNAUTHORIZED };
+                            return new Response<MemberResult> { data = new MemberResult { token = tempToken, refreshToken = tempRefreshToken, member = tempModel }, message = ResponseMessage.UNAUTHORIZED, status = ResponseStatus.UNAUTHORIZED };
                         }
                     }
                 }
@@ -135,13 +137,13 @@ AND
                 {
                     Console.WriteLine("로그인 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
                     Console.WriteLine("LOGIN ERROR : " + e.Message);
-                    return new Response<MemberResult> { data = new MemberResult { userModel = tempModel }, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
+                    return new Response<MemberResult> { data = new MemberResult { token = tempToken, refreshToken = tempRefreshToken, member = tempModel }, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
                 }
             }
             else // 검증 오류.
             {
                 Console.WriteLine("로그인 : " + ResponseStatus.BAD_REQUEST);
-                return new Response<MemberResult> { data = new MemberResult { userModel = tempModel }, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
+                return new Response<MemberResult> { data = new MemberResult { token = tempToken, refreshToken = tempRefreshToken, member = tempModel }, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
             }
         }
         #endregion
