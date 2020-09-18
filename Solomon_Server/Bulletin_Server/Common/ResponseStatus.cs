@@ -10,5 +10,7 @@ namespace Solomon_Server.Utils
         public static int UNAUTHORIZED = Convert.ToInt32(HttpStatusCode.Unauthorized);
         public static int BAD_REQUEST = Convert.ToInt32(HttpStatusCode.BadRequest);
         public static int INTERNAL_SERVER_ERROR = Convert.ToInt32(HttpStatusCode.InternalServerError);
+        public static int CONFLICT = Convert.ToInt32(HttpStatusCode.Conflict);
+        public static int CREATED = Convert.ToInt32(HttpStatusCode.Created);
     }
 }
