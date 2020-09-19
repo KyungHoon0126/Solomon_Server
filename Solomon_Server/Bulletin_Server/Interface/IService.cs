@@ -1,4 +1,5 @@
 ﻿using Solomon_Server.Model.Meal;
+using Solomon_Server.Model.Member;
 using Solomon_Server.Results;
 using Solomon_Server.Results.CommentResults;
 using Solomon_Server.Results.MemberResult;
@@ -49,6 +50,16 @@ namespace Solomon_Server
         [WebInvoke(Method = "POST", ResponseFormat = WebMessageFormat.Json,
                    BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/auth/login")]
         Task<Response<MemberResult>> Login(string id, string pw);
+
+        /// <summary>
+        /// member_idx로 회원정보 조회
+        /// </summary>
+        /// <param name="member_idx"></param>
+        /// <returns></returns>
+        [OperationContract]
+        [WebInvoke(Method = "GET", ResponseFormat = WebMessageFormat.Json,
+                   BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/member/{member_idx}")]
+        Task<Response<UserModel>> GetMemberInformation(string member_idx);
         #endregion
 
         #region Bulletin_Service
@@ -104,12 +115,12 @@ namespace Solomon_Server
         /// 특정 게시물 조회
         /// Headers : token(string)
         /// </summary>
-        /// <param name="idx", 게시글 idx></param>
+        /// <param name="bulletin_idx", 게시글 idx></param>
         /// <returns></returns>
         [OperationContract]
         [WebInvoke(Method = "GET", ResponseFormat = WebMessageFormat.Json,
-                   BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/bulletin/post/{idx}")]
-        Task<Response<BulletinResult>> GetSpecificBulletin(string idx);
+                   BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/bulletin/post/{bulletin_idx}")]
+        Task<Response<BulletinResult>> GetSpecificBulletin(string bulletin_idx);
         #endregion
 
         #region Bulletin_Comment_Service
@@ -183,6 +194,11 @@ namespace Solomon_Server
                    BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/auth/check/email?email={email}")]
         Task<Response> CheckEmailOverlap(string email);
         #endregion
+    }
+
+    public class QueryIdx
+    {
+        public static int bulletin_idx = 0;
     }
 
     public class Response

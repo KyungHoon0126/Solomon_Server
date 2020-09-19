@@ -2,6 +2,7 @@
 {
     public class UserModel
     {
+        public int member_idx { get; set; }
         public string id { get; set; }
         public string name { get; set; }
         public string email { get; set; }

@@ -9,6 +9,7 @@ using Solomon_Server.Utils;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -144,6 +145,56 @@ AND
             {
                 Console.WriteLine("로그인 : " + ResponseStatus.BAD_REQUEST);
                 return new Response<MemberResult> { data = new MemberResult { token = tempToken, refreshToken = tempRefreshToken, member = tempModel }, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
+            }
+        }
+
+        public async Task<Response<UserModel>> GetMemberInformation(string member_idx)
+        {
+            UserModel tempModel = new UserModel();
+
+            if (member_idx != null && member_idx.Trim().Length > 0)
+            {
+                try
+                {
+                    UserModel user = new UserModel();
+
+                    using (IDbConnection db = new MySqlConnection(ComDef.DATA_BASE_URL))
+                    {
+                        db.Open();
+
+                        string selectSql = $@"
+SELECT
+    *
+FROM
+    member_tb
+WHERE
+    member_idx = '{member_idx}'
+";
+                        user = await userDBManager.GetSingleDataAsync(db, selectSql, member_idx);
+
+                        if (user != null)
+                        {
+                            Console.WriteLine("특정 회원 조회 : " + ResponseStatus.OK);
+                            return new Response<UserModel> { data = user, message = ResponseMessage.OK, status = ResponseStatus.OK };
+                        }
+                        else
+                        {
+                            Console.WriteLine("특정 회원 조회 : " + ResponseStatus.NOT_FOUND);
+                            return new Response<UserModel> { data = tempModel, message = "회원 정보가 존재하지 않습니다.", status = ResponseStatus.NOT_FOUND };
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine("GET MEMBER INFORMATION ERROR : " + e.Message);
+                    Console.WriteLine("특정 회원 조회 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
+                    return new Response<UserModel> { data = tempModel, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
+                }
+            }
+            else
+            {
+                Console.WriteLine("특정 회원 조회 : " + ResponseStatus.BAD_REQUEST);
+                return new Response<UserModel> { data = tempModel, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
             }
         }
         #endregion
