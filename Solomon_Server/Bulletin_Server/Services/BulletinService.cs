@@ -58,8 +58,8 @@ FROM
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine("전체 게시글 조회 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
                         Console.WriteLine("GET ALL BULLETINS ERROR : " + e.Message);
+                        Console.WriteLine("전체 게시글 조회 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
                         return new Response<BulletinsResult> { data = new BulletinsResult { bulletins = tempArr }, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
                     }
                 }
@@ -126,8 +126,8 @@ VALUES(
                         }
                         catch (Exception e)
                         {
-                            Console.WriteLine("게시글 작성 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
                             Console.WriteLine("WRITE BULLETIN ERROR : " + e.Message);
+                            Console.WriteLine("게시글 작성 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
                             return new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
                         }
                     }
@@ -195,8 +195,8 @@ AND
                         }
                         catch (Exception e)
                         {
-                            Console.WriteLine("게시글 삭제 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
                             Console.WriteLine("WRITE BULLETIN ERROR : " + e.Message);
+                            Console.WriteLine("게시글 삭제 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
                             return new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
                         }
                     }
@@ -269,8 +269,8 @@ AND
                         }
                         catch (Exception e)
                         {
-                            Console.WriteLine("게시글 수정 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
                             Console.WriteLine("PUT BULLETIN ERROR : " + e.Message);
+                            Console.WriteLine("게시글 수정 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
                             return new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
                         }
                     }
@@ -337,6 +337,7 @@ WHERE
                     catch (Exception e)
                     {
                         Console.WriteLine("GET SPECIFIC BULLETIN ERROR : " + e.Message);
+                        Console.WriteLine("특정 게시글 조회 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
                         return new Response<BulletinResult> { data = new BulletinResult { bulletin = tempModel }, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
                     }
                 }
@@ -351,7 +352,7 @@ WHERE
                 Console.WriteLine("특정 게시글 조회 : " + ResponseStatus.BAD_REQUEST);
                 return new Response<BulletinResult> { data = new BulletinResult { bulletin = tempModel }, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
             }
-            #endregion
         }
+        #endregion
     }
 }
