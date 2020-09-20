@@ -1,363 +1,305 @@
-﻿//using Solomon_Server.Common;
-//using Solomon_Server.DataBase;
-//using Solomon_Server.Models.Bulletin;
-//using Solomon_Server.Results.CommentResults;
-//using Solomon_Server.Utils;
-//using System;
-//using System.Collections.Generic;
-//using System.Data;
-//using System.ServiceModel.Web;
-//using System.Threading.Tasks;
+﻿using Solomon_Server.Common;
+using Solomon_Server.DataBase;
+using Solomon_Server.Models.Bulletin;
+using Solomon_Server.Results.CommentResults;
+using Solomon_Server.Utils;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.ServiceModel.Web;
+using System.Threading.Tasks;
 
-//namespace Solomon_Server.Services
-//{
-//    public partial class SolomonService : IService
-//    {
-//        DBManager<CommentModel> commentDBManager = new DBManager<CommentModel>();
+namespace Solomon_Server.Services
+{
+    public partial class SolomonService : IService
+    {
+        DBManager<CommentModel> commentDBManager = new DBManager<CommentModel>();
 
-//        #region Bulletin_Comment_Service
-//        public async Task<Response<CommentsResult>> GetAllComments()
-//        {
-//            WebOperationContext webOperationContext = WebOperationContext.Current;
-//            List<CommentModel> tempArr = new List<CommentModel>();
+        #region Bulletin_Comment_Service
+        public async Task<Response<CommentsResult>> GetAllComments()
+        {
+            List<CommentModel> tempArr = new List<CommentModel>();
 
-//            if (ComDef.InspectionHeaderValue(webOperationContext))
-//            {
-//                string requestHeaderValue = webOperationContext.IncomingRequest.Headers["token"].ToString();
+            if (ComDef.jwtService.IsTokenValid(ComDef.GetHeaderValue(WebOperationContext.Current)))
+            {
+                try
+                {
+                    List<CommentModel> comments = new List<CommentModel>();
+                    using (IDbConnection db = GetConnection())
+                    {
+                        db.Open();
 
-//                if (ComDef.jwtService.IsTokenValid(requestHeaderValue))
-//                {
-//                    try
-//                    {
-//                        List<CommentModel> comments = new List<CommentModel>();
-//                        using (IDbConnection db = GetConnection())
-//                        {
-//                            db.Open();
+                        string selectSql = @"
+SELECT
+    *
+FROM
+    comment_tb
+";
+                        await bulletinDBManager.IndexSortSqlAsync(db, ComDef.GetIndexSortSQL("comment_idx", "comment_tb"));
+                        comments = await commentDBManager.GetListAsync(db, selectSql, "");
 
-//                            string selectSql = @"
-//        SELECT
-//            *
-//        FROM
-//            comment_tb
-//        ";
-//                            await bulletinDBManager.IndexSortSqlAsync(db, ComDef.GetIndexSortSQL("comment_idx", "comment_tb"));
-//                            comments = await commentDBManager.GetListAsync(db, selectSql, "");
+                        if (comments != null && comments.Count > 0)
+                        {
+                            ComDef.ShowResponseResult("GET ALL COMMETNS", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
+                            return new Response<CommentsResult> { data = new CommentsResult { comments = comments }, message = ResponseMessage.OK, status = ResponseStatus.OK };
+                        }
+                        else
+                        {
+                            ComDef.ShowResponseResult("GET ALL COMMETNS", ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE);
+                            return new Response<CommentsResult> { data = new CommentsResult { comments = comments }, message = "댓글이 존재하지 않습니다.", status = ResponseStatus.NOT_FOUND }; ;
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("GET ALL COMMENTS ERROR : " + e.Message);
+                    ComDef.ShowResponseResult("GET ALL COMMETNS", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
+                    return new Response<CommentsResult> { data = new CommentsResult { comments = tempArr }, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
+                }
+            }
+            else // 토큰이 유효하지 않음. => 검증 오류.
+            {
+                ComDef.ShowResponseResult("GET ALL COMMETNS", ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE);
+                return new Response<CommentsResult> { data = new CommentsResult { comments = tempArr }, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
+            }
+        }
 
-//                            if (comments != null && comments.Count > 0)
-//                            {
-//                                ComDef.ShowResponseResult("GET ALL COMMETNS", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
-//                                return new Response<CommentsResult> { data = new CommentsResult { comments = comments }, message = ResponseMessage.OK, status = ResponseStatus.OK };
-//                            }
-//                            else
-//                            {
-//                                ComDef.ShowResponseResult("GET ALL COMMETNS", ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE);
-//                                return new Response<CommentsResult> { data = new CommentsResult { comments = comments }, message = "댓글이 존재하지 않습니다.", status = ResponseStatus.NOT_FOUND }; ;
-//                            }
-//                        }
-//                    }
-//                    catch (Exception e)
-//                    {
-//                        Console.WriteLine("GET ALL COMMENTS ERROR : " + e.Message);
-//                        ComDef.ShowResponseResult("GET ALL COMMETNS", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
-//                        return new Response<CommentsResult> { data = new CommentsResult { comments = tempArr }, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
-//                    }
-//                }
-//                else // 토큰이 유효하지 않음. => 검증 오류.
-//                {
-//                    ComDef.ShowResponseResult("GET ALL COMMETNS", ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE);
-//                    return new Response<CommentsResult> { data = new CommentsResult { comments = tempArr }, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
-//                }
-//            }
-//            else
-//            {
-//                ComDef.ShowResponseResult("GET ALL COMMETNS", ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE);
-//                return new Response<CommentsResult> { data = new CommentsResult { comments = tempArr }, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
-//            }
-//        }
+        public async Task<Response> WriteComment(int bulletin_idx, string writer, string content)
+        {
+            if (ComDef.jwtService.IsTokenValid(ComDef.GetHeaderValue(WebOperationContext.Current)))
+            {
+                if (bulletin_idx.ToString().Length > 0 && writer != null && content != null &&
+                        writer.Trim().Length > 0 && content.Trim().Length > 0)
+                {
+                    try
+                    {
+                        using (IDbConnection db = GetConnection())
+                        {
+                            db.Open();
 
-//        public async Task<Response> WriteComment(int bulletin_idx, string writer, string content)
-//        {
-//            WebOperationContext webOperationContext = WebOperationContext.Current;
-         
-//            if (ComDef.InspectionHeaderValue(webOperationContext))
-//            {
-//                string requestHeaderValue = webOperationContext.IncomingRequest.Headers["token"].ToString();
+                            var model = new CommentModel();
+                            model.bulletin_idx = bulletin_idx;
+                            model.writer = writer;
+                            model.content = content;
 
-//                if (ComDef.jwtService.IsTokenValid(requestHeaderValue))
-//                {
-//                    if (bulletin_idx.ToString().Length > 0 && writer != null && content != null &&
-//                            writer.Trim().Length > 0 && content.Trim().Length > 0)
-//                    {
-//                        try
-//                        {
-//                            using (IDbConnection db = GetConnection())
-//                            {
-//                                db.Open();
+                            string insertSql = @"
+INSERT INTO comment_tb(
+    bulletin_idx,
+    writer,
+    content
+)
+VALUES(
+    @bulletin_idx,
+    @writer,
+    @content
+);";
+                            if (await commentDBManager.InsertAsync(db, insertSql, model) == 1)
+                            {
+                                await commentDBManager.IndexSortSqlAsync(db, ComDef.GetIndexSortSQL("comment_idx", "comment_tb"));
+                                ComDef.ShowResponseResult("WRITE COMMENT", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
+                                return new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
+                            }
+                            else
+                            {
+                                ComDef.ShowResponseResult("WRITE COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
+                                return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("WRITE COMMENT ERROR : " + e.Message);
+                        ComDef.ShowResponseResult("WRITE COMMENT", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
+                        return new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
+                    }
+                }
+                else
+                {
+                    ComDef.ShowResponseResult("WRITE COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
+                    return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
+                }
+            }
+            else // 토큰이 유효하지 않음. => 검증 오류.
+            {
+                ComDef.ShowResponseResult("WRITE COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
+                return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
+            }
+        }
 
-//                                var model = new CommentModel();
-//                                model.bulletin_idx = bulletin_idx;
-//                                model.writer = writer;
-//                                model.content = content;
+        public async Task<Response> DeleteComment(string writer, int comment_idx)
+        {
+            if (ComDef.jwtService.IsTokenValid(ComDef.GetHeaderValue(WebOperationContext.Current)))
+            {
+                if (comment_idx.ToString() != null && comment_idx.ToString().Length > 0 && writer != null && writer.Length > 0)
+                {
+                    try
+                    {
+                        using (IDbConnection db = GetConnection())
+                        {
+                            db.Open();
 
-//                                string insertSql = @"
-//        INSERT INTO comment_tb(
-//            bulletin_idx,
-//            writer,
-//            content
-//        )
-//        VALUES(
-//            @bulletin_idx,
-//            @writer,
-//            @content
-//        );";
-//                                if (await commentDBManager.InsertAsync(db, insertSql, model) == 1)
-//                                {
-//                                    await commentDBManager.IndexSortSqlAsync(db, ComDef.GetIndexSortSQL("comment_idx", "comment_tb"));
-//                                    ComDef.ShowResponseResult("WRITE COMMENT", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
-//                                    return new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
-//                                }
-//                                else
-//                                {
-//                                    ComDef.ShowResponseResult("WRITE COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
-//                                    return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
-//                                }
-//                            }
-//                        }
-//                        catch (Exception e)
-//                        {
-//                            Console.WriteLine("WRITE COMMENT ERROR : " + e.Message);
-//                            ComDef.ShowResponseResult("WRITE COMMENT", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
-//                            return new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
-//                        }
-//                    }
-//                    else
-//                    {
-//                        ComDef.ShowResponseResult("WRITE COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
-//                        return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
-//                    }
-//                }
-//                else // 토큰이 유효하지 않음. => 검증 오류.
-//                {
-//                    ComDef.ShowResponseResult("WRITE COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
-//                    return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
-//                }
-//            }
-//            else
-//            {
-//                ComDef.ShowResponseResult("WRITE COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
-//                return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
-//            }
-//        }
+                            var model = new CommentModel();
+                            model.writer = writer;
+                            model.comment_idx = comment_idx;
 
-//        public async Task<Response> DeleteComment(string writer, int comment_idx)
-//        {
-//            WebOperationContext webOperationContext = WebOperationContext.Current;
+                            string deleteSql = $@"
+DELETE FROM
+    comment_tb
+WHERE
+    writer = '{writer}'
+AND
+    idx = '{comment_idx}'    
+;";
+                            if (await bulletinDBManager.DeleteAsync(db, deleteSql, model) == 1)
+                            {
+                                await bulletinDBManager.IndexSortSqlAsync(db, ComDef.GetIndexSortSQL("comment_idx", "comment_tb"));
+                                ComDef.ShowResponseResult("DELETE COMMENT", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
+                                return new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
+                            }
+                            else
+                            {
+                                ComDef.ShowResponseResult("DELETE COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
+                                return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("DELETE COMMENT ERROR : " + e.Message);
+                        ComDef.ShowResponseResult("DELETE COMMENT", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
+                        return new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
+                    }
+                }
+                else
+                {
+                    ComDef.ShowResponseResult("DELETE COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
+                    return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
+                }
+            }
+            else // 토큰이 유효하지 않음. => 검증 오류.
+            {
+                ComDef.ShowResponseResult("DELETE COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
+                return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
+            }
+        }
 
-//            if (ComDef.InspectionHeaderValue(webOperationContext))
-//            {
-//                string requestHeaderValue = webOperationContext.IncomingRequest.Headers["token"].ToString();
+        public async Task<Response> PutComment(string content, string writer, int comment_idx)
+        {
+            if (ComDef.jwtService.IsTokenValid(ComDef.GetHeaderValue(WebOperationContext.Current)))
+            {
+                if (content != null && content.Trim().Length > 0 && writer != null &&
+                        writer.Trim().Length > 0 && comment_idx.ToString().Length > 0)
+                {
+                    try
+                    {
+                        using (IDbConnection db = GetConnection())
+                        {
+                            db.Open();
 
-//                if (ComDef.jwtService.IsTokenValid(requestHeaderValue))
-//                {
-//                    if (comment_idx.ToString() != null && comment_idx.ToString().Length > 0 && writer != null && writer.Length > 0)
-//                    {
-//                        try
-//                        {
-//                            using (IDbConnection db = GetConnection())
-//                            {
-//                                db.Open();
+                            var model = new CommentModel();
+                            model.content = content;
+                            model.writer = writer;
+                            model.comment_idx = comment_idx;
 
-//                                var model = new CommentModel();
-//                                model.writer = writer;
-//                                model.comment_idx = comment_idx;
+                            string updateSql = $@"
+UPDATE 
+    comment_tb
+SET
+    content = '{content}'
+WHERE
+    writer = '{writer}'
+AND
+    idx = '{comment_idx}'
+;";
+                            if (await commentDBManager.UpdateAsync(db, updateSql, model) == 1)
+                            {
+                                await commentDBManager.IndexSortSqlAsync(db, updateSql);
+                                ComDef.ShowResponseResult("PUT COMMENT", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
+                                return new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
+                            }
+                            else
+                            {
+                                ComDef.ShowResponseResult("PUT COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
+                                return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("PUT COMMENT ERROR : " + e.Message);
+                        ComDef.ShowResponseResult("PUT COMMENT", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
+                        return new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
+                    }
+                }
+                else
+                {
+                    ComDef.ShowResponseResult("PUT COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
+                    return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
+                }
+            }
+            else // 토큰이 유효하지 않음. => 검증 오류.
+            {
+                ComDef.ShowResponseResult("PUT COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
+                return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
+            }
+        }
 
-//                                string deleteSql = $@"
-//        DELETE FROM
-//            comment_tb
-//        WHERE
-//            writer = '{writer}'
-//        AND
-//            idx = '{comment_idx}'    
-//        ;";
-//                                if (await bulletinDBManager.DeleteAsync(db, deleteSql, model) == 1)
-//                                {
-//                                    await bulletinDBManager.IndexSortSqlAsync(db, ComDef.GetIndexSortSQL("comment_idx", "comment_tb"));
-//                                    ComDef.ShowResponseResult("DELETE COMMENT", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
-//                                    return new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
-//                                }
-//                                else
-//                                {
-//                                    ComDef.ShowResponseResult("DELETE COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
-//                                    return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
-//                                }
-//                            }
-//                        }
-//                        catch (Exception e)
-//                        {
-//                            Console.WriteLine("DELETE COMMENT ERROR : " + e.Message);
-//                            ComDef.ShowResponseResult("DELETE COMMENT", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
-//                            return new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
-//                        }
-//                    }
-//                    else
-//                    {
-//                        ComDef.ShowResponseResult("DELETE COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
-//                        return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
-//                    }
-//                }
-//                else // 토큰이 유효하지 않음. => 검증 오류.
-//                {
-//                    ComDef.ShowResponseResult("DELETE COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
-//                    return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
-//                }
-//            }
-//            else
-//            {
-//                ComDef.ShowResponseResult("DELETE COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
-//                return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
-//            }
-//        }
+        public async Task<Response<CommentsResult>> GetSpecificComments(string bulletin_idx)
+        {
+            List<CommentModel> tempArr = new List<CommentModel>();
 
-//        public async Task<Response> PutComment(string content, string writer, int comment_idx)
-//        {
-//            WebOperationContext webOperationContext = WebOperationContext.Current;
+            if (ComDef.jwtService.IsTokenValid(ComDef.GetHeaderValue(WebOperationContext.Current)))
+            {
+                if (bulletin_idx.Length > 0 && bulletin_idx != null)
+                {
+                    try
+                    {
+                        List<CommentModel> comments = new List<CommentModel>();
+                        using (IDbConnection db = GetConnection())
+                        {
+                            db.Open();
 
-//            if (ComDef.InspectionHeaderValue(webOperationContext))
-//            {
-//                string requestHeaderValue = webOperationContext.IncomingRequest.Headers["token"].ToString();
+                            string selectSql = $@"
+SELECT
+    *
+FROM
+    comment_tb
+WHERE
+    bulletin_idx = '{bulletin_idx}'
+";
+                            comments = await commentDBManager.GetListAsync(db, selectSql, "");
 
-//                if (ComDef.jwtService.IsTokenValid(requestHeaderValue))
-//                {
-//                    if (content != null && content.Trim().Length > 0 && writer != null &&
-//                            writer.Trim().Length > 0 && comment_idx.ToString().Length > 0)
-//                    {
-//                        try
-//                        {
-//                            using (IDbConnection db = GetConnection())
-//                            {
-//                                db.Open();
-
-//                                var model = new CommentModel();
-//                                model.content = content;
-//                                model.writer = writer;
-//                                model.comment_idx = comment_idx;
-
-//                                string updateSql = $@"
-//        UPDATE 
-//            comment_tb
-//        SET
-//            content = '{content}'
-//        WHERE
-//            writer = '{writer}'
-//        AND
-//            idx = '{comment_idx}'
-//        ;";
-//                                if (await commentDBManager.UpdateAsync(db, updateSql, model) == 1)
-//                                {
-//                                    await commentDBManager.IndexSortSqlAsync(db, updateSql);
-//                                    ComDef.ShowResponseResult("PUT COMMENT", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
-//                                    return new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
-//                                }
-//                                else
-//                                {
-//                                    ComDef.ShowResponseResult("PUT COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
-//                                    return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
-//                                }
-//                            }
-//                        }
-//                        catch (Exception e)
-//                        {
-//                            Console.WriteLine("PUT COMMENT ERROR : " + e.Message);
-//                            ComDef.ShowResponseResult("PUT COMMENT", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
-//                            return new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
-//                        }
-//                    }
-//                    else
-//                    {
-//                        ComDef.ShowResponseResult("PUT COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
-//                        return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
-//                    }
-//                }
-//                else // 토큰이 유효하지 않음. => 검증 오류.
-//                {
-//                    ComDef.ShowResponseResult("PUT COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
-//                    return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
-//                }
-//            }
-//            else
-//            {
-//                ComDef.ShowResponseResult("PUT COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
-//                return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
-//            }
-//        }
-
-//        public async Task<Response<CommentsResult>> GetSpecificComments(string bulletin_idx)
-//        {
-//            WebOperationContext webOperationContext = WebOperationContext.Current;
-//            List<CommentModel> tempArr = new List<CommentModel>();
-
-//            if (ComDef.InspectionHeaderValue(webOperationContext))
-//            {
-//                string requestHeaderValue = webOperationContext.IncomingRequest.Headers["token"].ToString();
-
-//                if (ComDef.jwtService.IsTokenValid(requestHeaderValue))
-//                {
-//                    if (bulletin_idx.Length > 0 && bulletin_idx != null)
-//                    {
-//                        try
-//                        {
-//                            List<CommentModel> comments = new List<CommentModel>();
-//                            using (IDbConnection db = GetConnection())
-//                            {
-//                                db.Open();
-
-//                                string selectSql = $@"
-//        SELECT
-//            *
-//        FROM
-//            comment_tb
-//        WHERE
-//            bulletin_idx = '{bulletin_idx}'
-//        ";
-//                                comments = await commentDBManager.GetListAsync(db, selectSql, "");
-
-//                                if (comments != null && comments.Count > 0)
-//                                {
-//                                    ComDef.ShowResponseResult("GET SPECIFIC BULLETIN COMMENTS", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
-//                                    return new Response<CommentsResult> { data = new CommentsResult { comments = comments }, message = ResponseMessage.OK, status = ResponseStatus.OK };
-//                                }
-//                                else
-//                                {
-//                                    ComDef.ShowResponseResult("GET SPECIFIC BULLETIN COMMENTS", ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE);
-//                                    return new Response<CommentsResult> { data = new CommentsResult { comments = tempArr }, message = "댓글이 존재하지 않습니다.", status = ResponseStatus.NOT_FOUND };
-//                                }
-//                            }
-//                        }
-//                        catch (Exception e)
-//                        {
-//                            Console.WriteLine("GET SPECIFIC BULLETIN COMMENTS ERROR : " + e.Message);
-//                            ComDef.ShowResponseResult("GET SPECIFIC BULLETIN COMMENTS", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
-//                            return new Response<CommentsResult> { data = new CommentsResult { comments = tempArr }, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
-//                        }
-//                    }
-//                    else
-//                    {
-//                        ComDef.ShowResponseResult("GET SPECIFIC BULLETIN COMMENTS", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
-//                        return new Response<CommentsResult> { data = new CommentsResult { comments = tempArr }, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
-//                    }
-//                }
-//                else // 토큰이 유효하지 않음. => 검증 오류.
-//                {
-//                    ComDef.ShowResponseResult("GET SPECIFIC BULLETIN COMMENTS", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
-//                    return new Response<CommentsResult> { data = new CommentsResult { comments = tempArr }, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
-//                }
-//            }
-//            else
-//            {
-//                ComDef.ShowResponseResult("GET SPECIFIC BULLETIN COMMENTS", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
-//                return new Response<CommentsResult> { data = new CommentsResult { comments = tempArr }, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
-//            }
-//        }
-//        #endregion
-//    }
-//}
+                            if (comments != null && comments.Count > 0)
+                            {
+                                ComDef.ShowResponseResult("GET SPECIFIC BULLETIN COMMENTS", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
+                                return new Response<CommentsResult> { data = new CommentsResult { comments = comments }, message = ResponseMessage.OK, status = ResponseStatus.OK };
+                            }
+                            else
+                            {
+                                ComDef.ShowResponseResult("GET SPECIFIC BULLETIN COMMENTS", ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE);
+                                return new Response<CommentsResult> { data = new CommentsResult { comments = tempArr }, message = "댓글이 존재하지 않습니다.", status = ResponseStatus.NOT_FOUND };
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("GET SPECIFIC BULLETIN COMMENTS ERROR : " + e.Message);
+                        ComDef.ShowResponseResult("GET SPECIFIC BULLETIN COMMENTS", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
+                        return new Response<CommentsResult> { data = new CommentsResult { comments = tempArr }, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
+                    }
+                }
+                else
+                {
+                    ComDef.ShowResponseResult("GET SPECIFIC BULLETIN COMMENTS", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
+                    return new Response<CommentsResult> { data = new CommentsResult { comments = tempArr }, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
+                }
+            }
+            else // 토큰이 유효하지 않음. => 검증 오류.
+            {
+                ComDef.ShowResponseResult("GET SPECIFIC BULLETIN COMMENTS", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
+                return new Response<CommentsResult> { data = new CommentsResult { comments = tempArr }, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
+            }
+        }
+        #endregion
+    }
+}
