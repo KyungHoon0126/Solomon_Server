@@ -6,39 +6,39 @@ using System.ServiceModel.Web;
 
 namespace Solomon_Server.Common
 {
-    // TODO : Repository Public 시, JWT Secret Key, Meal API Key, DB 정보 제외.
+    // TODO : Repository Public 시, JWT Secret Key, Meal API Key 정보 제외.
     public class ComDef
     {   
         // Token Verification
         public static JWTContainerModel jWTContainerModel = new JWTContainerModel();
         public static JWTService jwtService = new JWTService(jWTContainerModel.SecretKey);
 
-        public static readonly string DATA_BASE_URL = $"SERVER=localhost;DATABASE=Bulletin;UID=root;PASSWORD=#kkh03kkh#;allow user variables=true";
-
-        // Request Time Log
+        /// <summary>
+        /// Request Time Log
+        /// </summary>
+        /// <returns></returns>
         public static string CheckRequestTime()
         {
             DateTime time = DateTime.Now;
-            int year = time.Year;
-            int month = time.Month;
-            int day = time.Day;
-            int hour = time.Hour;
-            int minute = time.Minute;
-            int second = time.Second;
-
             string msg = string.Empty;
             msg += "[";    
-            msg += year.ToString() + "년 ";
-            msg += month.ToString() + "월 ";
-            msg += day.ToString() + "일 ";
-            msg += hour.ToString() + "시 ";
-            msg += minute.ToString() + "분 ";
-            msg += second.ToString() + "초 ";
+            msg += time.Year.ToString() + "년 ";
+            msg += time.Month.ToString() + "월 ";
+            msg += time.Day.ToString() + "일 ";
+            msg += time.Hour.ToString() + "시 ";
+            msg += time.Minute.ToString() + "분 ";
+            msg += time.Second.ToString() + "초 ";
             msg += "] ";
             return msg;
         }
 
-        // Request Log
+        /// <summary>
+        /// Request Log
+        /// </summary>
+        /// <param name="apiName"></param>
+        /// <param name="preColor"></param>
+        /// <param name="status"></param>
+        /// <param name="setColor"></param>
         public static void ShowResponseResult(string apiName, ConTextColor preColor, int status, ConTextColor setColor)
         {
             Console.Write(CheckRequestTime() + $"{apiName} responded ");
@@ -46,21 +46,22 @@ namespace Solomon_Server.Common
             Console.WriteLine(status);
             WrapAPI.SetConsoleTextColor(setColor);
         }
-
+        
         /// <summary>
-        /// Inpection Request Header's Value
+        /// Get Header's Token
         /// </summary>
         /// <param name="webOperationContext"></param>
         /// <returns></returns>
-        public static bool InspectionHeaderValue(WebOperationContext webOperationContext)
+        public static string GetHeaderValue(WebOperationContext webOperationContext)
         {
-            if (webOperationContext.IncomingRequest.Headers == null)
+            string requestHeaderValue = webOperationContext.IncomingRequest.Headers["token"].ToString();
+            if (webOperationContext.IncomingRequest.Headers != null && requestHeaderValue != null)
             {
-                return false;
+                return requestHeaderValue;
             }
             else
             {
-                return true;
+                return null;
             }
         }
 

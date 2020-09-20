@@ -12,10 +12,10 @@ namespace Solomon_Server
             server.AddServiceEndpoint(typeof(IService), new WebHttpBinding(), "");
             server.Open();
             Console.Title = "Solomon Server";
-            Console.WriteLine("Bulletin Server Start");
+            Console.WriteLine("Solomon Server Start");
             Console.WriteLine("If you want to exit this application, please push enter key.");
             Console.ReadLine();
-            Console.WriteLine("Bulletin Server Stop");
+            Console.WriteLine("Solomon Server Stop");
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using MySql.Data.MySqlClient;
-using Solomon_Server.Common;
+﻿using Solomon_Server.Common;
 using Solomon_Server.DataBase;
 using Solomon_Server.JWT.Models;
 using Solomon_Server.JWT.Services;
@@ -28,7 +27,7 @@ namespace Solomon_Server.Services
             {
                 try
                 {
-                    using (IDbConnection db = new MySqlConnection(ComDef.DATA_BASE_URL))
+                    using (IDbConnection db = GetConnection())
                     {
                         db.Open();
 
@@ -91,7 +90,7 @@ VALUES(
                 {
                     UserModel user = new UserModel();
 
-                    using (IDbConnection db = new MySqlConnection(ComDef.DATA_BASE_URL))
+                    using (IDbConnection db = GetConnection())
                     {
                         db.Open();
 
@@ -165,7 +164,7 @@ AND
                 {
                     UserModel user = new UserModel();
 
-                    using (IDbConnection db = new MySqlConnection(ComDef.DATA_BASE_URL))
+                    using (IDbConnection db = GetConnection())
                     {
                         db.Open();
 

@@ -1,5 +1,4 @@
-﻿using MySql.Data.MySqlClient;
-using Solomon_Server.Common;
+﻿using Solomon_Server.Common;
 using Solomon_Server.DataBase;
 using Solomon_Server.Model.Member;
 using Solomon_Server.Utils;
@@ -20,7 +19,7 @@ namespace Solomon_Server.Services
             {
                 try
                 {
-                    using (IDbConnection db = new MySqlConnection(ComDef.DATA_BASE_URL))
+                    using (IDbConnection db = GetConnection())
                     {
                         db.Open();
 
