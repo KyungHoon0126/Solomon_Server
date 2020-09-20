@@ -1,5 +1,4 @@
-﻿using MySql.Data.MySqlClient;
-using Solomon_Server.Common;
+﻿using Solomon_Server.Common;
 using Solomon_Server.DataBase;
 using Solomon_Server.JWT.Models;
 using Solomon_Server.JWT.Services;
@@ -28,7 +27,7 @@ namespace Solomon_Server.Services
             {
                 try
                 {
-                    using (IDbConnection db = new MySqlConnection(ComDef.DATA_BASE_URL))
+                    using (IDbConnection db = GetConnection())
                     {
                         db.Open();
 
@@ -91,7 +90,7 @@ VALUES(
                 {
                     UserModel user = new UserModel();
 
-                    using (IDbConnection db = new MySqlConnection(ComDef.DATA_BASE_URL))
+                    using (IDbConnection db = GetConnection())
                     {
                         db.Open();
 
@@ -136,7 +135,7 @@ AND
                         }
                         else
                         {
-                            Console.WriteLine("LOGIN", ConTextColor.RED, ResponseStatus.UNAUTHORIZED, ConTextColor.WHITE);
+                            ComDef.ShowResponseResult("LOGIN", ConTextColor.RED, ResponseStatus.UNAUTHORIZED, ConTextColor.WHITE);
                             return new Response<MemberResult> { data = new MemberResult { token = tempToken, refreshToken = tempRefreshToken, member = tempModel }, message = ResponseMessage.UNAUTHORIZED, status = ResponseStatus.UNAUTHORIZED };
                         }
                     }
@@ -165,7 +164,7 @@ AND
                 {
                     UserModel user = new UserModel();
 
-                    using (IDbConnection db = new MySqlConnection(ComDef.DATA_BASE_URL))
+                    using (IDbConnection db = GetConnection())
                     {
                         db.Open();
 

@@ -196,11 +196,6 @@ namespace Solomon_Server
         #endregion
     }
 
-    public class QueryIdx
-    {
-        public static int bulletin_idx = 0;
-    }
-
     public class Response
     {
         public string message { get; set; }

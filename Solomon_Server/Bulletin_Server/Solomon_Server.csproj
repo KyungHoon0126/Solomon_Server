@@ -146,8 +146,12 @@
   <ItemGroup>
     <Compile Include="Common\ComDef.cs" />
     <Compile Include="Common\ResponseMessage.cs" />
+    <Compile Include="DataBase\DatabaseStrategy.cs" />
+    <Compile Include="DataBase\DBConnectionManager.cs" />
     <Compile Include="DataBase\DBManager.cs" />
     <Compile Include="DataBase\ModelBase.cs" />
+    <Compile Include="DataBase\MsSqlDBConnectionManager.cs" />
+    <Compile Include="DataBase\MySqlDBConnectionManager.cs" />
     <Compile Include="Interface\IService.cs" />
     <Compile Include="JWT\Models\IAuthContainerModel.cs" />
     <Compile Include="JWT\Models\JWTContainerModel.cs" />
