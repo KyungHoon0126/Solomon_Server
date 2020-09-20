@@ -46,12 +46,12 @@ FROM
 
                             if (bulletins != null && bulletins.Count > 0)
                             {
-                                Console.WriteLine("전체 게시글 조회 : " + ResponseStatus.OK);
+                                ComDef.ShowResponseResult("GET ALL BULLETINS", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
                                 return new Response<BulletinsResult> { data = new BulletinsResult { bulletins = bulletins }, message = ResponseMessage.OK, status = ResponseStatus.OK };
                             }
                             else
                             {
-                                Console.WriteLine("전체 게시글 조회 : " + ResponseStatus.NOT_FOUND);
+                                ComDef.ShowResponseResult("GET ALL BULLETINS", ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE);
                                 return new Response<BulletinsResult> { data = new BulletinsResult { bulletins = tempArr }, message = "게시글이 존재하지 않습니다.", status = ResponseStatus.NOT_FOUND };
                             }
                         }
@@ -59,19 +59,19 @@ FROM
                     catch (Exception e)
                     {
                         Console.WriteLine("GET ALL BULLETINS ERROR : " + e.Message);
-                        Console.WriteLine("전체 게시글 조회 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
+                        ComDef.ShowResponseResult("GET ALL BULLETINS", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
                         return new Response<BulletinsResult> { data = new BulletinsResult { bulletins = tempArr }, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
                     }
                 }
                 else // 토큰이 유효하지 않음. => 검증 오류.
                 {
-                    Console.WriteLine("전체 게시글 조회 : " + ResponseStatus.BAD_REQUEST);
+                    ComDef.ShowResponseResult("GET ALL BULLETINS", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                     return new Response<BulletinsResult> { data = new BulletinsResult { bulletins = tempArr }, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                 }
             }
             else
             {
-                Console.WriteLine("전체 게시글 조회 : " + ResponseStatus.BAD_REQUEST);
+                ComDef.ShowResponseResult("GET ALL BULLETINS", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                 return new Response<BulletinsResult> { data = new BulletinsResult { bulletins = tempArr }, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
             }
         }
@@ -114,12 +114,12 @@ VALUES(
                                 if (await bulletinDBManager.InsertAsync(db, insertSql, model) == 1)
                                 {
                                     await bulletinDBManager.IndexSortSqlAsync(db, ComDef.GetIndexSortSQL("bulletin_idx", "bulletin_tb"));
-                                    Console.WriteLine("게시글 작성 : " + ResponseStatus.OK);
+                                    ComDef.ShowResponseResult("WRITE BULLETIN", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
                                     return new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
                                 }
                                 else
                                 {
-                                    Console.WriteLine("게시글 작성 : " + ResponseStatus.BAD_REQUEST);
+                                    ComDef.ShowResponseResult("WRITE BULLETIN", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                                     return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                                 }
                             }
@@ -127,25 +127,25 @@ VALUES(
                         catch (Exception e)
                         {
                             Console.WriteLine("WRITE BULLETIN ERROR : " + e.Message);
-                            Console.WriteLine("게시글 작성 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
+                            ComDef.ShowResponseResult("WRITE BULLETIN", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
                             return new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
                         }
                     }
                     else
                     {
-                        Console.WriteLine("게시글 작성 : " + ResponseStatus.BAD_REQUEST);
+                        ComDef.ShowResponseResult("WRITE BULLETIN", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                         return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                     }
                 }
                 else // 토큰이 유효하지 않음. => 검증 오류.
                 {
-                    Console.WriteLine("게시글 작성 : " + ResponseStatus.BAD_REQUEST);
+                    ComDef.ShowResponseResult("WRITE BULLETIN", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                     return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                 }
             }
             else
             {
-                Console.WriteLine("게시글 작성 : " + ResponseStatus.BAD_REQUEST);
+                ComDef.ShowResponseResult("WRITE BULLETIN", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                 return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
             }
         }
@@ -183,38 +183,38 @@ AND
                                 if (await bulletinDBManager.DeleteAsync(db, deleteSql, model) == 1)
                                 {
                                     await bulletinDBManager.IndexSortSqlAsync(db, ComDef.GetIndexSortSQL("bulletin_idx", "bulletin_tb"));
-                                    Console.WriteLine("게시글 삭제 : " + ResponseStatus.OK);
+                                    ComDef.ShowResponseResult("DELETE BULLETIN", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
                                     return new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
                                 }
                                 else
                                 {
-                                    Console.WriteLine("게시글 삭제 : " + ResponseStatus.BAD_REQUEST);
+                                    ComDef.ShowResponseResult("DELETE BULLETIN", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                                     return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                                 }
                             }
                         }
                         catch (Exception e)
                         {
-                            Console.WriteLine("WRITE BULLETIN ERROR : " + e.Message);
-                            Console.WriteLine("게시글 삭제 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
+                            Console.WriteLine("DELETE BULLETIN ERROR : " + e.Message);
+                            ComDef.ShowResponseResult("DELETE BULLETIN", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
                             return new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
                         }
                     }
                     else
                     {
-                        Console.WriteLine("게시글 삭제 : " + ResponseStatus.BAD_REQUEST);
+                        ComDef.ShowResponseResult("DELETE BULLETIN", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                         return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                     }
                 }
                 else // 토큰이 유효하지 않음. => 검증 오류.
                 {
-                    Console.WriteLine("게시글 삭제 : " + ResponseStatus.BAD_REQUEST);
+                    ComDef.ShowResponseResult("DELETE BULLETIN", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                     return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                 }
             }
             else
             {
-                Console.WriteLine("게시글 삭제 : " + ResponseStatus.BAD_REQUEST);
+                ComDef.ShowResponseResult("DELETE BULLETIN", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                 return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
             }
         }
@@ -257,12 +257,12 @@ AND
                                 if (await bulletinDBManager.UpdateAsync(db, updateSql, model) == 1)
                                 {
                                     await bulletinDBManager.IndexSortSqlAsync(db, updateSql);
-                                    Console.WriteLine("게시글 수정 : " + ResponseStatus.OK);
+                                    ComDef.ShowResponseResult("PUT BULLETIN", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
                                     return new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
                                 }
                                 else
                                 {
-                                    Console.WriteLine("게시글 수정 : " + ResponseStatus.BAD_REQUEST);
+                                    ComDef.ShowResponseResult("PUT BULLETIN", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                                     return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                                 }
                             }
@@ -270,25 +270,25 @@ AND
                         catch (Exception e)
                         {
                             Console.WriteLine("PUT BULLETIN ERROR : " + e.Message);
-                            Console.WriteLine("게시글 수정 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
+                            ComDef.ShowResponseResult("PUT BULLETIN", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
                             return new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
                         }
                     }
                     else
                     {
-                        Console.WriteLine("게시글 수정 : " + ResponseStatus.BAD_REQUEST);
+                        ComDef.ShowResponseResult("PUT BULLETIN", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                         return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                     }
                 }
                 else // 토큰이 유효하지 않음. => 검증 오류.
                 {
-                    Console.WriteLine("게시글 수정 : " + ResponseStatus.BAD_REQUEST);
+                    ComDef.ShowResponseResult("PUT BULLETIN", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                     return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                 }
             }
             else
             {
-                Console.WriteLine("게시글 수정 : " + ResponseStatus.BAD_REQUEST);
+                ComDef.ShowResponseResult("PUT BULLETIN", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                 return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
             }            
         }
@@ -324,12 +324,12 @@ WHERE
 
                             if (bulletin != null)
                             {
-                                Console.WriteLine("특정 게시글 조회 : " + ResponseStatus.OK);
+                                ComDef.ShowResponseResult("GET SPECIFIC BULLETIN", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
                                 return new Response<BulletinResult> { data = new BulletinResult { bulletin = bulletin }, message = ResponseMessage.OK, status = ResponseStatus.OK };
                             }
                             else
                             {
-                                Console.WriteLine("특정 게시글 조회 : " + ResponseStatus.NOT_FOUND);
+                                ComDef.ShowResponseResult("GET SPECIFIC BULLETIN", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                                 return new Response<BulletinResult> { data = new BulletinResult { bulletin = tempModel }, message = "게시글이 존재하지 않습니다.", status = ResponseStatus.NOT_FOUND };
                             }
                         }
@@ -337,19 +337,19 @@ WHERE
                     catch (Exception e)
                     {
                         Console.WriteLine("GET SPECIFIC BULLETIN ERROR : " + e.Message);
-                        Console.WriteLine("특정 게시글 조회 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
+                        ComDef.ShowResponseResult("GET SPECIFIC BULLETIN", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
                         return new Response<BulletinResult> { data = new BulletinResult { bulletin = tempModel }, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
                     }
                 }
                 else // 토큰이 유효하지 않음. => 검증 오류.
                 {
-                    Console.WriteLine("특정 게시글 조회 : " + ResponseStatus.BAD_REQUEST);
+                    ComDef.ShowResponseResult("GET SPECIFIC BULLETIN", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                     return new Response<BulletinResult> { data = new BulletinResult { bulletin = tempModel }, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                 }
             }
             else
             {
-                Console.WriteLine("특정 게시글 조회 : " + ResponseStatus.BAD_REQUEST);
+                ComDef.ShowResponseResult("GET SPECIFIC BULLETIN", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                 return new Response<BulletinResult> { data = new BulletinResult { bulletin = tempModel }, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
             }
         }
