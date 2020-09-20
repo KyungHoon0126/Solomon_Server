@@ -136,7 +136,7 @@ AND
                         }
                         else
                         {
-                            Console.WriteLine("LOGIN", ConTextColor.RED, ResponseStatus.UNAUTHORIZED, ConTextColor.WHITE);
+                            ComDef.ShowResponseResult("LOGIN", ConTextColor.RED, ResponseStatus.UNAUTHORIZED, ConTextColor.WHITE);
                             return new Response<MemberResult> { data = new MemberResult { token = tempToken, refreshToken = tempRefreshToken, member = tempModel }, message = ResponseMessage.UNAUTHORIZED, status = ResponseStatus.UNAUTHORIZED };
                         }
                     }
