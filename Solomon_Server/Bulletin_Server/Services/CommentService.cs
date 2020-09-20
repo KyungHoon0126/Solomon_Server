@@ -46,32 +46,32 @@ namespace Solomon_Server.Services
 
                             if (comments != null && comments.Count > 0)
                             {
-                                Console.WriteLine("전체 댓글 조회 : " + ResponseStatus.OK);
+                                ComDef.ShowResponseResult("GET ALL COMMETNS", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
                                 return new Response<CommentsResult> { data = new CommentsResult { comments = comments }, message = ResponseMessage.OK, status = ResponseStatus.OK };
                             }
                             else
                             {
-                                Console.WriteLine("전체 댓글 조회 : " + ResponseStatus.NOT_FOUND);
+                                ComDef.ShowResponseResult("GET ALL COMMETNS", ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE);
                                 return new Response<CommentsResult> { data = new CommentsResult { comments = comments }, message = "댓글이 존재하지 않습니다.", status = ResponseStatus.NOT_FOUND }; ;
                             }
                         }
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine("전체 댓글 조회 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
                         Console.WriteLine("GET ALL COMMENTS ERROR : " + e.Message);
+                        ComDef.ShowResponseResult("GET ALL COMMETNS", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
                         return new Response<CommentsResult> { data = new CommentsResult { comments = tempArr }, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
                     }
                 }
                 else // 토큰이 유효하지 않음. => 검증 오류.
                 {
-                    Console.WriteLine("전체 댓글 조회 : " + ResponseStatus.BAD_REQUEST);
+                    ComDef.ShowResponseResult("GET ALL COMMETNS", ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE);
                     return new Response<CommentsResult> { data = new CommentsResult { comments = tempArr }, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                 }
             }
             else
             {
-                Console.WriteLine("전체 댓글 조회 : " + ResponseStatus.BAD_REQUEST);
+                ComDef.ShowResponseResult("GET ALL COMMETNS", ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE);
                 return new Response<CommentsResult> { data = new CommentsResult { comments = tempArr }, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
             }
         }
@@ -114,38 +114,38 @@ namespace Solomon_Server.Services
                                 if (await commentDBManager.InsertAsync(db, insertSql, model) == 1)
                                 {
                                     await commentDBManager.IndexSortSqlAsync(db, ComDef.GetIndexSortSQL("comment_idx", "comment_tb"));
-                                    Console.WriteLine("댓글 작성 : " + ResponseStatus.OK);
+                                    ComDef.ShowResponseResult("WRITE COMMENT", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
                                     return new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
                                 }
                                 else
                                 {
-                                    Console.WriteLine("댓글 작성 : " + ResponseStatus.BAD_REQUEST);
+                                    ComDef.ShowResponseResult("WRITE COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                                     return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                                 }
                             }
                         }
                         catch (Exception e)
                         {
-                            Console.WriteLine("댓글 작성 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
                             Console.WriteLine("WRITE COMMENT ERROR : " + e.Message);
+                            ComDef.ShowResponseResult("WRITE COMMENT", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
                             return new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
                         }
                     }
                     else
                     {
-                        Console.WriteLine("댓글 작성 : " + ResponseStatus.BAD_REQUEST);
+                        ComDef.ShowResponseResult("WRITE COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                         return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                     }
                 }
                 else // 토큰이 유효하지 않음. => 검증 오류.
                 {
-                    Console.WriteLine("댓글 작성 : " + ResponseStatus.BAD_REQUEST);
+                    ComDef.ShowResponseResult("WRITE COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                     return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                 }
             }
             else
             {
-                Console.WriteLine("댓글 작성 : " + ResponseStatus.BAD_REQUEST);
+                ComDef.ShowResponseResult("WRITE COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                 return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
             }
         }
@@ -183,38 +183,38 @@ namespace Solomon_Server.Services
                                 if (await bulletinDBManager.DeleteAsync(db, deleteSql, model) == 1)
                                 {
                                     await bulletinDBManager.IndexSortSqlAsync(db, ComDef.GetIndexSortSQL("comment_idx", "comment_tb"));
-                                    Console.WriteLine("댓글 삭제 : " + ResponseStatus.OK);
+                                    ComDef.ShowResponseResult("DELETE COMMENT", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
                                     return new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
                                 }
                                 else
                                 {
-                                    Console.WriteLine("댓글 삭제 : " + ResponseStatus.BAD_REQUEST);
+                                    ComDef.ShowResponseResult("DELETE COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                                     return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                                 }
                             }
                         }
                         catch (Exception e)
                         {
-                            Console.WriteLine("댓글 삭제 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
                             Console.WriteLine("DELETE COMMENT ERROR : " + e.Message);
+                            ComDef.ShowResponseResult("DELETE COMMENT", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
                             return new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
                         }
                     }
                     else
                     {
-                        Console.WriteLine("댓글 삭제 : " + ResponseStatus.BAD_REQUEST);
+                        ComDef.ShowResponseResult("DELETE COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                         return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                     }
                 }
                 else // 토큰이 유효하지 않음. => 검증 오류.
                 {
-                    Console.WriteLine("댓글 삭제 : " + ResponseStatus.BAD_REQUEST);
+                    ComDef.ShowResponseResult("DELETE COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                     return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                 }
             }
             else
             {
-                Console.WriteLine("댓글 삭제 : " + ResponseStatus.BAD_REQUEST);
+                ComDef.ShowResponseResult("DELETE COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                 return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
             }
         }
@@ -256,38 +256,38 @@ namespace Solomon_Server.Services
                                 if (await commentDBManager.UpdateAsync(db, updateSql, model) == 1)
                                 {
                                     await commentDBManager.IndexSortSqlAsync(db, updateSql);
-                                    Console.WriteLine("댓글 수정 : " + ResponseStatus.OK);
+                                    ComDef.ShowResponseResult("PUT COMMENT", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
                                     return new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
                                 }
                                 else
                                 {
-                                    Console.WriteLine("댓글 수정 : " + ResponseStatus.BAD_REQUEST);
+                                    ComDef.ShowResponseResult("PUT COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                                     return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                                 }
                             }
                         }
                         catch (Exception e)
                         {
-                            Console.WriteLine("댓글 수정 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
                             Console.WriteLine("PUT COMMENT ERROR : " + e.Message);
+                            ComDef.ShowResponseResult("PUT COMMENT", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
                             return new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
                         }
                     }
                     else
                     {
-                        Console.WriteLine("댓글 수정 : " + ResponseStatus.BAD_REQUEST);
+                        ComDef.ShowResponseResult("PUT COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                         return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                     }
                 }
                 else // 토큰이 유효하지 않음. => 검증 오류.
                 {
-                    Console.WriteLine("댓글 수정 : " + ResponseStatus.BAD_REQUEST);
+                    ComDef.ShowResponseResult("PUT COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                     return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                 }
             }
             else
             {
-                Console.WriteLine("댓글 수정 : " + ResponseStatus.BAD_REQUEST);
+                ComDef.ShowResponseResult("PUT COMMENT", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                 return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
             }
         }
@@ -324,38 +324,38 @@ namespace Solomon_Server.Services
 
                                 if (comments != null && comments.Count > 0)
                                 {
-                                    Console.WriteLine("특정 게시글 댓글 전체 조회 : " + ResponseStatus.OK);
+                                    ComDef.ShowResponseResult("GET SPECIFIC BULLETIN COMMENTS", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
                                     return new Response<CommentsResult> { data = new CommentsResult { comments = comments }, message = ResponseMessage.OK, status = ResponseStatus.OK };
                                 }
                                 else
                                 {
-                                    Console.WriteLine("특정 게시글 댓글 전체 조회 : " + ResponseStatus.NOT_FOUND);
-                                    return new Response<CommentsResult> { data = new CommentsResult { comments = tempArr }, message = "댓글 존재하지 않습니다.", status = ResponseStatus.NOT_FOUND };
+                                    ComDef.ShowResponseResult("GET SPECIFIC BULLETIN COMMENTS", ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE);
+                                    return new Response<CommentsResult> { data = new CommentsResult { comments = tempArr }, message = "댓글이 존재하지 않습니다.", status = ResponseStatus.NOT_FOUND };
                                 }
                             }
                         }
                         catch (Exception e)
                         {
-                            Console.WriteLine("특정 게시물 댓글 전체 조회 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
                             Console.WriteLine("GET SPECIFIC BULLETIN COMMENTS ERROR : " + e.Message);
+                            ComDef.ShowResponseResult("GET SPECIFIC BULLETIN COMMENTS", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
                             return new Response<CommentsResult> { data = new CommentsResult { comments = tempArr }, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
                         }
                     }
                     else
                     {
-                        Console.WriteLine("특정 게시물 댓글 전체 조회 : " + ResponseStatus.BAD_REQUEST);
+                        ComDef.ShowResponseResult("GET SPECIFIC BULLETIN COMMENTS", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                         return new Response<CommentsResult> { data = new CommentsResult { comments = tempArr }, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                     }
                 }
                 else // 토큰이 유효하지 않음. => 검증 오류.
                 {
-                    Console.WriteLine("특정 게시물 댓글 전체 조회 : " + ResponseStatus.BAD_REQUEST);
+                    ComDef.ShowResponseResult("GET SPECIFIC BULLETIN COMMENTS", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                     return new Response<CommentsResult> { data = new CommentsResult { comments = tempArr }, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                 }
             }
             else
             {
-                Console.WriteLine("특정 게시물 댓글 전체 조회 : " + ResponseStatus.BAD_REQUEST);
+                ComDef.ShowResponseResult("GET SPECIFIC BULLETIN COMMENTS", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                 return new Response<CommentsResult> { data = new CommentsResult { comments = tempArr }, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
             }
         }
