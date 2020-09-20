@@ -36,26 +36,26 @@ WHERE
 
                         if (response == null)
                         {
-                            Console.WriteLine("이메일 중복 확인 : " + ResponseStatus.OK);
+                            ComDef.ShowResponseResult("CHECK EMAIL OVERLAP", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
                             return new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
                         }
                         else
                         {
-                            Console.WriteLine("이메일 중복 확인 : " + ResponseStatus.CONFLICT);
+                            ComDef.ShowResponseResult("CHECK EMAIL OVERLAP", ConTextColor.RED, ResponseStatus.CONFLICT, ConTextColor.WHITE);
                             return new Response { message = "중복된 이메일.", status = ResponseStatus.CONFLICT };
                         }
                     }
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("이메일 중복 확인 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
                     Console.WriteLine("CHECK EMAIL OVERLAP ERROR : " + e.Message);
+                    ComDef.ShowResponseResult("CHECK EMAIL OVERLAP", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
                     return new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
                 }
             }
             else // 검증 오류.
             {
-                Console.WriteLine("이메일 중복 확인 : " + ResponseStatus.BAD_REQUEST);
+                ComDef.ShowResponseResult("CHECK EMAIL OVERLAP", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                 return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
             }
         }

@@ -48,24 +48,24 @@ namespace Solomon_Server.Services
 
                     if (mealData == null || mealData.meal.Count < 0)
                     {
-                        ComDef.ShowResponseResult("Meal", ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE);
+                        ComDef.ShowResponseResult("MEAL", ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE);
                         return new Response<MealInfoModel> { data = tempModel, message = "급식 설정이 필요합니다.", status = ResponseStatus.NOT_FOUND };
                     }
                     else
                     {
-                        ComDef.ShowResponseResult("Meal", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE); ;
+                        ComDef.ShowResponseResult("MEAL", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE); ;
                         return new Response<MealInfoModel> { data = mealData, message = "급식 조회에 성공하였습니다.", status = ResponseStatus.OK };
                     }
                 }
                 else // 토큰이 유효하지 않음. => 검증 오류.
                 {
-                    ComDef.ShowResponseResult("Meal", ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE);
+                    ComDef.ShowResponseResult("MEAL", ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE);
                     return new Response<MealInfoModel> { data = tempModel, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
                 }   
             }
             else
             {
-                ComDef.ShowResponseResult("Meal", ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE);
+                ComDef.ShowResponseResult("MEAL", ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE);
                 return new Response<MealInfoModel> { data = tempModel, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
             }
         }

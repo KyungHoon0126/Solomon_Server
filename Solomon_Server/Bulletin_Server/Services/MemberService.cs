@@ -52,22 +52,29 @@ VALUES(
     @email
 );";
 
-                        await userDBManager.InsertAsync(db, insertSql, model);
-                        await userDBManager.IndexSortSqlAsync(db, ComDef.GetIndexSortSQL("member_idx", "member_tb"));
-                        Console.WriteLine("회원 가입 : " + ResponseStatus.CREATED);
-                        return new Response { message = "성공적으로 회원가입이 되었습니다.", status = ResponseStatus.CREATED };
+                        if (await userDBManager.InsertAsync(db, insertSql, model) == 1)
+                        {
+                            await userDBManager.IndexSortSqlAsync(db, ComDef.GetIndexSortSQL("member_idx", "member_tb"));
+                            ComDef.ShowResponseResult("SIGN UP", ConTextColor.LIGHT_GREEN, ResponseStatus.CREATED, ConTextColor.WHITE); ;
+                            return new Response { message = "성공적으로 회원가입이 되었습니다.", status = ResponseStatus.CREATED };
+                        }
+                        else
+                        {
+                            ComDef.ShowResponseResult("SIGN UP", ConTextColor.RED, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
+                            return new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
+                        }
                     }
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("회원 가입 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
-                    Console.WriteLine("SIGNUP ERROR : " + e.Message);
+                    Console.WriteLine("SIGN UP ERROR : " + e.Message);
+                    ComDef.ShowResponseResult("SIGN UP", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
                     return new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
                 }
             }
             else // 검증 오류.
             {
-                Console.WriteLine("회원 가입 : " + ResponseStatus.BAD_REQUEST);
+                ComDef.ShowResponseResult("SIGN UP", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                 return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
             }
         }
@@ -123,27 +130,27 @@ AND
                                 Console.WriteLine("Login UserName : " + claims.FirstOrDefault(x => x.Type.Equals(ClaimTypes.Name)).Value);
                                 Console.WriteLine("Login Eamil : " + claims.FirstOrDefault(x => x.Type.Equals(ClaimTypes.Email)).Value);
 
-                                Console.WriteLine("로그인 : " + ResponseStatus.OK);
+                                ComDef.ShowResponseResult("LOGIN", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
                                 return new Response<MemberResult> { data = new MemberResult { token = token, refreshToken = tempRefreshToken, member = user }, message = ResponseMessage.OK, status = ResponseStatus.OK };
                             }
                         }
                         else
                         {
-                            Console.WriteLine("로그인 : " + ResponseStatus.UNAUTHORIZED);
+                            Console.WriteLine("LOGIN", ConTextColor.RED, ResponseStatus.UNAUTHORIZED, ConTextColor.WHITE);
                             return new Response<MemberResult> { data = new MemberResult { token = tempToken, refreshToken = tempRefreshToken, member = tempModel }, message = ResponseMessage.UNAUTHORIZED, status = ResponseStatus.UNAUTHORIZED };
                         }
                     }
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("로그인 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
                     Console.WriteLine("LOGIN ERROR : " + e.Message);
+                    ComDef.ShowResponseResult("LOGIN", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
                     return new Response<MemberResult> { data = new MemberResult { token = tempToken, refreshToken = tempRefreshToken, member = tempModel }, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
                 }
             }
             else // 검증 오류.
             {
-                Console.WriteLine("로그인 : " + ResponseStatus.BAD_REQUEST);
+                ComDef.ShowResponseResult("LOGIN", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                 return new Response<MemberResult> { data = new MemberResult { token = tempToken, refreshToken = tempRefreshToken, member = tempModel }, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
             }
         }
@@ -174,12 +181,12 @@ WHERE
 
                         if (user != null)
                         {
-                            Console.WriteLine("특정 회원 조회 : " + ResponseStatus.OK);
+                            ComDef.ShowResponseResult("GET SPECIFIC MEMBER INFORMATION", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
                             return new Response<UserModel> { data = user, message = ResponseMessage.OK, status = ResponseStatus.OK };
                         }
                         else
                         {
-                            Console.WriteLine("특정 회원 조회 : " + ResponseStatus.NOT_FOUND);
+                            ComDef.ShowResponseResult("GET SPECIFIC MEMBER INFORMATION", ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE);
                             return new Response<UserModel> { data = tempModel, message = "회원 정보가 존재하지 않습니다.", status = ResponseStatus.NOT_FOUND };
                         }
                     }
@@ -187,13 +194,13 @@ WHERE
                 catch (Exception e)
                 {
                     Debug.WriteLine("GET MEMBER INFORMATION ERROR : " + e.Message);
-                    Console.WriteLine("특정 회원 조회 : " + ResponseStatus.INTERNAL_SERVER_ERROR);
+                    ComDef.ShowResponseResult("GET SPECIFIC MEMBER INFORMATION", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
                     return new Response<UserModel> { data = tempModel, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
                 }
             }
             else
             {
-                Console.WriteLine("특정 회원 조회 : " + ResponseStatus.BAD_REQUEST);
+                ComDef.ShowResponseResult("GET SPECIFIC MEMBER INFORMATION", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                 return new Response<UserModel> { data = tempModel, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
             }
         }
