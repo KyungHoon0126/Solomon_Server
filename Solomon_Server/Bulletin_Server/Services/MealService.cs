@@ -48,24 +48,24 @@ namespace Solomon_Server.Services
 
                     if (mealData == null || mealData.meal.Count < 0)
                     {
-                        Console.WriteLine("급식 : " + ResponseStatus.NOT_FOUND);
+                        ComDef.ShowResponseResult("Meal", ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE);
                         return new Response<MealInfoModel> { data = tempModel, message = "급식 설정이 필요합니다.", status = ResponseStatus.NOT_FOUND };
                     }
                     else
                     {
-                        Console.WriteLine("급식 : " + ResponseStatus.OK);
+                        ComDef.ShowResponseResult("Meal", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE); ;
                         return new Response<MealInfoModel> { data = mealData, message = "급식 조회에 성공하였습니다.", status = ResponseStatus.OK };
                     }
                 }
                 else // 토큰이 유효하지 않음. => 검증 오류.
                 {
-                    Console.WriteLine("급식 : " + ResponseStatus.BAD_REQUEST);
+                    ComDef.ShowResponseResult("Meal", ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE);
                     return new Response<MealInfoModel> { data = tempModel, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
-                }
+                }   
             }
             else
             {
-                Console.WriteLine("급식 : " + ResponseStatus.BAD_REQUEST);
+                ComDef.ShowResponseResult("Meal", ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE);
                 return new Response<MealInfoModel> { data = tempModel, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
             }
         }
