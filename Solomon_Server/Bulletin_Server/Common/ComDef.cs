@@ -39,7 +39,7 @@ namespace Solomon_Server.Common
         /// <param name="preColor"></param>
         /// <param name="status"></param>
         /// <param name="setColor"></param>
-        public static void ShowResponseResult(string apiName, ConTextColor preColor, int status, ConTextColor setColor)
+        public static void ShowRequestResult(string apiName, ConTextColor preColor, int status, ConTextColor setColor)
         {
             Console.Write(CheckRequestTime() + $"{apiName} responded ");
             WrapAPI.SetConsoleTextColor(preColor);
