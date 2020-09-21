@@ -61,7 +61,7 @@ namespace Solomon_Server.JWT.Services
 
         public string GenerateToken(IAuthContainerModel model)
         {
-            if (model == null || model.Claims == null || model.Claims.Length == 0)
+            if (model is null || model.Claims is null || model.Claims.Length == 0)
             {
                 throw new ArgumentException("Arguments to create token are not valid");
             }
