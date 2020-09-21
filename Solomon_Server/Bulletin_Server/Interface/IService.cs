@@ -3,6 +3,7 @@ using Solomon_Server.Model.Member;
 using Solomon_Server.Results;
 using Solomon_Server.Results.CommentResults;
 using Solomon_Server.Results.MemberResult;
+using System.Collections.Generic;
 using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Threading.Tasks;

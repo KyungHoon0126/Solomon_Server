@@ -12,5 +12,10 @@ namespace Solomon_Server.Utils
         public static int INTERNAL_SERVER_ERROR = Convert.ToInt32(HttpStatusCode.InternalServerError);
         public static int CONFLICT = Convert.ToInt32(HttpStatusCode.Conflict);
         public static int CREATED = Convert.ToInt32(HttpStatusCode.Created);
+
+        public int ConvertHttpStatusCode()
+        {
+
+        }
     }
 }

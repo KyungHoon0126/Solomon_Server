@@ -1,5 +1,4 @@
-﻿using Solomon_Server.Common;
-using Solomon_Server.DataBase;
+﻿using Solomon_Server.DataBase;
 using Solomon_Server.Model.Member;
 using Solomon_Server.Utils;
 using System;
@@ -33,14 +32,14 @@ WHERE
 ;";
                         var response = await checkOverlapDBManager.GetSingleDataAsync(db, selectSql, email);
 
-                        if (response == null)
+                        if (response is null)
                         {
-                            ComDef.ShowRequestResult("CHECK EMAIL OVERLAP", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
-                            return new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
+                            ServiceManager.ShowRequestResult("CHECK EMAIL OVERLAP", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
+                            return ServiceManager.Result(ResponseType.OK);
                         }
                         else
                         {
-                            ComDef.ShowRequestResult("CHECK EMAIL OVERLAP", ConTextColor.RED, ResponseStatus.CONFLICT, ConTextColor.WHITE);
+                            ServiceManager.ShowRequestResult("CHECK EMAIL OVERLAP", ConTextColor.RED, ResponseStatus.CONFLICT, ConTextColor.WHITE);
                             return new Response { message = "중복된 이메일.", status = ResponseStatus.CONFLICT };
                         }
                     }
@@ -48,14 +47,14 @@ WHERE
                 catch (Exception e)
                 {
                     Console.WriteLine("CHECK EMAIL OVERLAP ERROR : " + e.Message);
-                    ComDef.ShowRequestResult("CHECK EMAIL OVERLAP", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
-                    return new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
+                    ServiceManager.ShowRequestResult("CHECK EMAIL OVERLAP", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
+                    return ServiceManager.Result(ResponseType.INTERNAL_SERVER_ERROR);
                 }
             }
             else // 검증 오류.
             {
-                ComDef.ShowRequestResult("CHECK EMAIL OVERLAP", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
-                return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
+                ServiceManager.ShowRequestResult("CHECK EMAIL OVERLAP", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
+                return ServiceManager.Result(ResponseType.BAD_REQUEST);
             }
         }
         #endregion

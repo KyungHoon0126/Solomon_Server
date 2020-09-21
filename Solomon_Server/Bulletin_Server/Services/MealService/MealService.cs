@@ -18,7 +18,7 @@ namespace Solomon_Server.Services
         {
             MealInfoModel tempModel = new MealInfoModel();
 
-            if (ComDef.jwtService.IsTokenValid(ComDef.GetHeaderValue(WebOperationContext.Current)))
+            if (ComDef.jwtService.IsTokenValid(ServiceManager.GetHeaderValue(WebOperationContext.Current)))
             {
                 WebClient webClient = new WebClient();
                 webClient.Headers["Content-Type"] = "application/json";
@@ -35,26 +35,26 @@ namespace Solomon_Server.Services
 
                 for (int i = 0; i < mealData.meal.Count; i++)
                 {
-                    if (mealData.meal[i].row == null)
+                    if (mealData.meal[i].row is null)
                     {
                         mealData.meal.Remove(mealData.meal[i]);
                     }
                 }
 
-                if (mealData == null || mealData.meal.Count < 0)
+                if (mealData is null || mealData.meal.Count < 0)
                 {
-                    ComDef.ShowRequestResult("Meal", ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE);
+                    ServiceManager.ShowRequestResult("Meal", ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE);
                     return new Response<MealInfoModel> { data = tempModel, message = "급식 설정이 필요합니다.", status = ResponseStatus.NOT_FOUND };
                 }
                 else
                 {
-                    ComDef.ShowRequestResult("Meal", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE); ;
+                    ServiceManager.ShowRequestResult("Meal", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE); ;
                     return new Response<MealInfoModel> { data = mealData, message = "급식 조회에 성공하였습니다.", status = ResponseStatus.OK };
                 }
             }
             else // 토큰이 유효하지 않음. => 검증 오류.
             {
-                ComDef.ShowRequestResult("Meal", ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE);
+                ServiceManager.ShowRequestResult("Meal", ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE);
                 return new Response<MealInfoModel> { data = tempModel, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
             }
         }
