@@ -194,6 +194,11 @@ namespace Solomon_Server
         [WebInvoke(Method = "GET", ResponseFormat = WebMessageFormat.Json,
                    BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/auth/check/email?email={email}")]
         Task<Response> CheckEmailOverlap(string email);
+
+        [OperationContract]
+        [WebInvoke(Method = "GET", ResponseFormat = WebMessageFormat.Json,
+                   BodyStyle = WebMessageBodyStyle.Wrapped, UriTemplate = "/auth/check/id?id={id}")]
+        Task<Response> CheckIdOverlap(string id);
         #endregion
     }
 
