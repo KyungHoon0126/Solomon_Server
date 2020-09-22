@@ -14,6 +14,8 @@ namespace Solomon_Server.Services
         #region CheckOverlap_Service
         public async Task<Response> CheckEmailOverlap(string email)
         {
+            string apiName = "CHECK EMAIL OVERLAP";
+
             if (email != null && email.Length > 0 && email.Trim().Length > 0)
             {
                 try
@@ -34,27 +36,24 @@ WHERE
 
                         if (response is null)
                         {
-                            ServiceManager.ShowRequestResult("CHECK EMAIL OVERLAP", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
-                            return ServiceManager.Result(ResponseType.OK);
+                            return ServiceManager.Result(apiName, ResponseType.OK);
                         }
                         else
                         {
-                            ServiceManager.ShowRequestResult("CHECK EMAIL OVERLAP", ConTextColor.RED, ResponseStatus.CONFLICT, ConTextColor.WHITE);
+                            ServiceManager.ShowRequestResult(apiName, ConTextColor.RED, ResponseStatus.CONFLICT, ConTextColor.WHITE);
                             return new Response { message = "중복된 이메일.", status = ResponseStatus.CONFLICT };
                         }
                     }
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("CHECK EMAIL OVERLAP ERROR : " + e.Message);
-                    ServiceManager.ShowRequestResult("CHECK EMAIL OVERLAP", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
-                    return ServiceManager.Result(ResponseType.INTERNAL_SERVER_ERROR);
+                    Console.WriteLine(apiName + " ERROR : " + e.Message);
+                    return ServiceManager.Result(apiName, ResponseType.INTERNAL_SERVER_ERROR);
                 }
             }
-            else // 검증 오류.
+            else
             {
-                ServiceManager.ShowRequestResult("CHECK EMAIL OVERLAP", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
-                return ServiceManager.Result(ResponseType.BAD_REQUEST);
+                return ServiceManager.Result(apiName, ResponseType.BAD_REQUEST);
             }
         }
         #endregion
