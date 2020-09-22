@@ -16,7 +16,7 @@ namespace Solomon_Server.Services
         DBManager<BulletinModel> bulletinDBManager = new DBManager<BulletinModel>();
 
         public delegate Response<BulletinsResult> BulletinsBadResponse(ConTextColor preColor, int status, ConTextColor setColor, string msg);
-        public delegate Response<BulletinResult> BulletinBadResponse(ConTextColor preColor, int status, ConTextColor setColor, string msg);
+        public delegate Response<BulletinModel> BulletinBadResponse(ConTextColor preColor, int status, ConTextColor setColor, string msg);
 
         #region Bulletin_Service
         public async Task<Response<BulletinsResult>> GetAllBulletins()
@@ -244,7 +244,7 @@ AND
             }
         }
 
-        public async Task<Response<BulletinResult>> GetSpecificBulletin(string bulletin_idx)
+        public async Task<Response<BulletinModel>> GetSpecificBulletin(string bulletin_idx)
         {
             string apiName = "GET SPECIFIC BULLETIN";
 
@@ -278,7 +278,7 @@ WHERE
                         if (bulletin != null)
                         {
                             ServiceManager.ShowRequestResult(apiName, ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
-                            return new Response<BulletinResult> { data = new BulletinResult { bulletin = bulletin }, message = ResponseMessage.OK, status = ResponseStatus.OK };
+                            return new Response<BulletinModel> { data = bulletin, message = ResponseMessage.OK, status = ResponseStatus.OK };
                         }
                         else
                         {
