@@ -13,10 +13,18 @@ namespace Solomon_Server.Services
 {
     public partial class SolomonService : IService
     {
+        public delegate Response<MealInfoModel> MealBadResponse(string apiName, ConTextColor preColor, int status, ConTextColor setColor, string msg);
+        MealBadResponse mealBadResponse = delegate (string apiName, ConTextColor preColor, int status, ConTextColor setColor, string msg)
+        {
+            MealInfoModel tempModel = new MealInfoModel();
+            ServiceManager.ShowRequestResult(apiName, preColor, status, setColor);
+            return new Response<MealInfoModel> { data = tempModel, status = status, message = msg };
+        };
+
         #region Meal_Service
         public Response<MealInfoModel> GetMealData()
         {
-            MealInfoModel tempModel = new MealInfoModel();
+            string apiName = "MEAL";
 
             if (ComDef.jwtService.IsTokenValid(ServiceManager.GetHeaderValue(WebOperationContext.Current)))
             {
@@ -43,19 +51,17 @@ namespace Solomon_Server.Services
 
                 if (mealData is null || mealData.meal.Count < 0)
                 {
-                    ServiceManager.ShowRequestResult("Meal", ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE);
-                    return new Response<MealInfoModel> { data = tempModel, message = "급식 설정이 필요합니다.", status = ResponseStatus.NOT_FOUND };
+                    return mealBadResponse(apiName, ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE, "급식 설정이 필요합니다.");
                 }
                 else
                 {
-                    ServiceManager.ShowRequestResult("Meal", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE); ;
+                    ServiceManager.ShowRequestResult(apiName, ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE); ;
                     return new Response<MealInfoModel> { data = mealData, message = "급식 조회에 성공하였습니다.", status = ResponseStatus.OK };
                 }
             }
-            else // 토큰이 유효하지 않음. => 검증 오류.
+            else 
             {
-                ServiceManager.ShowRequestResult("Meal", ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE);
-                return new Response<MealInfoModel> { data = tempModel, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
+                return mealBadResponse(apiName, ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE, ResponseMessage.BAD_REQUEST);
             }
         }
         #endregion
