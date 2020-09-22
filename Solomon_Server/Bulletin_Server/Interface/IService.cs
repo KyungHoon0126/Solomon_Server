@@ -1,9 +1,9 @@
 ﻿using Solomon_Server.Model.Meal;
 using Solomon_Server.Model.Member;
+using Solomon_Server.Models.Bulletin;
 using Solomon_Server.Results;
 using Solomon_Server.Results.CommentResults;
 using Solomon_Server.Results.MemberResult;
-using System.Collections.Generic;
 using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Threading.Tasks;
@@ -121,7 +121,7 @@ namespace Solomon_Server
         [OperationContract]
         [WebInvoke(Method = "GET", ResponseFormat = WebMessageFormat.Json,
                    BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/bulletin/post/{bulletin_idx}")]
-        Task<Response<BulletinResult>> GetSpecificBulletin(string bulletin_idx);
+        Task<Response<BulletinModel>> GetSpecificBulletin(string bulletin_idx);
         #endregion
 
         #region Bulletin_Comment_Service
