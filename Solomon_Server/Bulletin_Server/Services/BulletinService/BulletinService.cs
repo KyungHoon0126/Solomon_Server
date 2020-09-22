@@ -15,10 +15,20 @@ namespace Solomon_Server.Services
     {
         DBManager<BulletinModel> bulletinDBManager = new DBManager<BulletinModel>();
 
+        public delegate Response<BulletinsResult> BulletinsBadResponse(ConTextColor preColor, int status, ConTextColor setColor, string msg);
+        public delegate Response<BulletinResult> BulletinBadResponse(ConTextColor preColor, int status, ConTextColor setColor, string msg);
+
         #region Bulletin_Service
         public async Task<Response<BulletinsResult>> GetAllBulletins()
         {
-            List<BulletinModel> tempArr = new List<BulletinModel>();
+            string apiName = "GET ALL BULLETINS";
+
+            BulletinsBadResponse bulletinsBadResponse = delegate (ConTextColor preColor, int status, ConTextColor setColor, string msg)
+            {
+                List<BulletinModel> tempArr = new List<BulletinModel>();
+                ServiceManager.ShowRequestResult(apiName, preColor, status, setColor);
+                return new Response<BulletinsResult> { data = new BulletinsResult { bulletins = tempArr }, message = msg, status = status };
+            };
 
             if (ComDef.jwtService.IsTokenValid(ServiceManager.GetHeaderValue(WebOperationContext.Current)))
             {
@@ -41,32 +51,31 @@ FROM
 
                         if (bulletins != null && bulletins.Count > 0)
                         {
-                            ServiceManager.ShowRequestResult("GET ALL BULLETINS", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
+                            ServiceManager.ShowRequestResult(apiName, ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
                             return new Response<BulletinsResult> { data = new BulletinsResult { bulletins = bulletins }, message = ResponseMessage.OK, status = ResponseStatus.OK };
                         }
                         else
                         {
-                            ServiceManager.ShowRequestResult("GET ALL BULLETINS", ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE);
-                            return new Response<BulletinsResult> { data = new BulletinsResult { bulletins = tempArr }, message = "게시글이 존재하지 않습니다.", status = ResponseStatus.NOT_FOUND };
+                            return bulletinsBadResponse(ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE, "게시글이 존재하지 않습니다.");
                         }
                     }
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("GET ALL BULLETINS ERROR : " + e.Message);
-                    ServiceManager.ShowRequestResult("GET ALL BULLETINS", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
-                    return new Response<BulletinsResult> { data = new BulletinsResult { bulletins = tempArr }, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
+                    Console.WriteLine(apiName + " ERROR : " + e.Message);
+                    return bulletinsBadResponse(ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE, ResponseMessage.INTERNAL_SERVER_ERROR);
                 }
             }
-            else // 토큰이 유효하지 않음. => 검증 오류.
+            else
             {
-                ServiceManager.ShowRequestResult("GET ALL BULLETINS", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
-                return new Response<BulletinsResult> { data = new BulletinsResult { bulletins = tempArr }, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
+                return bulletinsBadResponse(ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE, ResponseMessage.BAD_REQUEST);
             }
         }
 
         public async Task<Response> WriteBulletin(string title, string content, string writer)
         {
+            string apiName = "WRITE BULLETIN";
+
             if (ComDef.jwtService.IsTokenValid(ServiceManager.GetHeaderValue(WebOperationContext.Current)))
             {
                 if (title != null && content != null && writer != null &&
@@ -97,38 +106,35 @@ VALUES(
                             if (await bulletinDBManager.InsertAsync(db, insertSql, model) == QueryExecutionResult.SUCCESS)
                             {
                                 await bulletinDBManager.IndexSortSqlAsync(db, ServiceManager.GetIndexSortSQL("bulletin_idx", "bulletin_tb"));
-                                ServiceManager.ShowRequestResult("WRITE BULLETIN", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
-                                return ServiceManager.Result(ResponseType.OK);
+                                return ServiceManager.Result(apiName, ResponseType.OK);
                             }
                             else
                             {
-                                ServiceManager.ShowRequestResult("WRITE BULLETIN", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
-                                return ServiceManager.Result(ResponseType.BAD_REQUEST);
+                                return ServiceManager.Result(apiName, ResponseType.BAD_REQUEST);
                             }
                         }
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine("WRITE BULLETIN ERROR : " + e.Message);
-                        ServiceManager.ShowRequestResult("WRITE BULLETIN", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
-                        return ServiceManager.Result(ResponseType.INTERNAL_SERVER_ERROR);
+                        Console.WriteLine(apiName + " ERROR : " + e.Message);
+                        return ServiceManager.Result(apiName, ResponseType.INTERNAL_SERVER_ERROR);
                     }
                 }
                 else
                 {
-                    ServiceManager.ShowRequestResult("WRITE BULLETIN", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
-                    return ServiceManager.Result(ResponseType.BAD_REQUEST);
+                    return ServiceManager.Result(apiName, ResponseType.BAD_REQUEST);
                 }
             }
-            else // 토큰이 유효하지 않음. => 검증 오류.
+            else
             {
-                ServiceManager.ShowRequestResult("WRITE BULLETIN", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
-                return ServiceManager.Result(ResponseType.BAD_REQUEST);
+                return ServiceManager.Result(apiName, ResponseType.BAD_REQUEST);
             }
         }
 
         public async Task<Response> DeleteBulletin(string writer, int bulletin_idx)
         {
+            string apiName = "DELETE BULLETIN";
+
             if (ComDef.jwtService.IsTokenValid(ServiceManager.GetHeaderValue(WebOperationContext.Current)))
             {
                 if (bulletin_idx.ToString() != null && bulletin_idx.ToString().Length > 0 && writer != null && writer.Length > 0)
@@ -154,38 +160,35 @@ AND
                             if (await bulletinDBManager.DeleteAsync(db, deleteSql, model) == QueryExecutionResult.SUCCESS)
                             {
                                 await bulletinDBManager.IndexSortSqlAsync(db, ServiceManager.GetIndexSortSQL("bulletin_idx", "bulletin_tb"));
-                                ServiceManager.ShowRequestResult("DELETE BULLETIN", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
-                                return ServiceManager.Result(ResponseType.OK);
+                                return ServiceManager.Result(apiName, ResponseType.OK);
                             }
                             else
                             {
-                                ServiceManager.ShowRequestResult("DELETE BULLETIN", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
-                                return ServiceManager.Result(ResponseType.BAD_REQUEST);
+                                return ServiceManager.Result(apiName, ResponseType.BAD_REQUEST);
                             }
                         }
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine("DELETE BULLETIN ERROR : " + e.Message);
-                        ServiceManager.ShowRequestResult("DELETE BULLETIN", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
-                        return ServiceManager.Result(ResponseType.INTERNAL_SERVER_ERROR);
+                        Console.WriteLine(apiName + " ERROR : " + e.Message);
+                        return ServiceManager.Result(apiName, ResponseType.INTERNAL_SERVER_ERROR);
                     }
                 }
                 else
                 {
-                    ServiceManager.ShowRequestResult("DELETE BULLETIN", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
-                    return ServiceManager.Result(ResponseType.BAD_REQUEST);
+                    return ServiceManager.Result(apiName, ResponseType.BAD_REQUEST);
                 }
             }
-            else // 토큰이 유효하지 않음. => 검증 오류.
+            else 
             {
-                ServiceManager.ShowRequestResult("DELETE BULLETIN", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
-                return ServiceManager.Result(ResponseType.BAD_REQUEST);
+                return ServiceManager.Result(apiName, ResponseType.BAD_REQUEST);
             }
         }
 
         public async Task<Response> PutBulletin(string title, string content, string writer, int bulletin_idx)
         {
+            string apiName = "PUT BULLETIN";
+
             if (ComDef.jwtService.IsTokenValid(ServiceManager.GetHeaderValue(WebOperationContext.Current)))
             {
                 if (title != null && title.Trim().Length > 0 && content != null && title.Trim().Length > 0 && bulletin_idx.ToString().Length > 0)
@@ -216,39 +219,41 @@ AND
                             if (await bulletinDBManager.UpdateAsync(db, updateSql, model) == QueryExecutionResult.SUCCESS)
                             {
                                 await bulletinDBManager.IndexSortSqlAsync(db, updateSql);
-                                ServiceManager.ShowRequestResult("PUT BULLETIN", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
-                                return ServiceManager.Result(ResponseType.OK);
+                                return ServiceManager.Result(apiName, ResponseType.OK);
                             }
                             else
                             {
-                                ServiceManager.ShowRequestResult("PUT BULLETIN", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
-                                return ServiceManager.Result(ResponseType.BAD_REQUEST);
+                                return ServiceManager.Result(apiName, ResponseType.BAD_REQUEST);
                             }
                         }
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine("PUT BULLETIN ERROR : " + e.Message);
-                        ServiceManager.ShowRequestResult("PUT BULLETIN", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
-                        return ServiceManager.Result(ResponseType.INTERNAL_SERVER_ERROR);
+                        Console.WriteLine(apiName + " ERROR : " + e.Message);
+                        return ServiceManager.Result(apiName, ResponseType.INTERNAL_SERVER_ERROR);
                     }
                 }
                 else
                 {
-                    ServiceManager.ShowRequestResult("PUT BULLETIN", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
-                    return ServiceManager.Result(ResponseType.BAD_REQUEST);
+                    return ServiceManager.Result(apiName, ResponseType.BAD_REQUEST);
                 }
             }
-            else // 토큰이 유효하지 않음. => 검증 오류.
+            else 
             {
-                ServiceManager.ShowRequestResult("PUT BULLETIN", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
-                return ServiceManager.Result(ResponseType.BAD_REQUEST);
+                return ServiceManager.Result(apiName, ResponseType.BAD_REQUEST);
             }
         }
 
         public async Task<Response<BulletinResult>> GetSpecificBulletin(string bulletin_idx)
         {
-            BulletinModel tempModel = new BulletinModel();
+            string apiName = "GET SPECIFIC BULLETIN";
+
+            BulletinBadResponse bulletinBadResponse = delegate (ConTextColor preColor, int status, ConTextColor setColor, string msg)
+            {
+                BulletinModel tempModel = new BulletinModel();
+                ServiceManager.ShowRequestResult(apiName, preColor, status, setColor);
+                return new Response<BulletinResult> { data = new BulletinResult { bulletin = tempModel }, message = msg, status = status };
+            };
 
             if (ComDef.jwtService.IsTokenValid(ServiceManager.GetHeaderValue(WebOperationContext.Current)))
             {
@@ -272,27 +277,24 @@ WHERE
 
                         if (bulletin != null)
                         {
-                            ServiceManager.ShowRequestResult("GET SPECIFIC BULLETIN", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
+                            ServiceManager.ShowRequestResult(apiName, ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
                             return new Response<BulletinResult> { data = new BulletinResult { bulletin = bulletin }, message = ResponseMessage.OK, status = ResponseStatus.OK };
                         }
                         else
                         {
-                            ServiceManager.ShowRequestResult("GET SPECIFIC BULLETIN", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
-                            return new Response<BulletinResult> { data = new BulletinResult { bulletin = tempModel }, message = "게시글이 존재하지 않습니다.", status = ResponseStatus.NOT_FOUND };
+                            return bulletinBadResponse(ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE, "게시글이 존재하지 않습니다.");
                         }
                     }
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("GET SPECIFIC BULLETIN ERROR : " + e.Message);
-                    ServiceManager.ShowRequestResult("GET SPECIFIC BULLETIN", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
-                    return new Response<BulletinResult> { data = new BulletinResult { bulletin = tempModel }, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
+                    Console.WriteLine(apiName + " ERROR : " + e.Message);
+                    return bulletinBadResponse(ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE, ResponseMessage.INTERNAL_SERVER_ERROR);
                 }
             }
-            else // 토큰이 유효하지 않음. => 검증 오류.
+            else 
             {
-                ServiceManager.ShowRequestResult("GET SPECIFIC BULLETIN", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
-                return new Response<BulletinResult> { data = new BulletinResult { bulletin = tempModel }, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
+                return bulletinBadResponse(ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE, ResponseMessage.BAD_REQUEST);
             }
         }
         #endregion

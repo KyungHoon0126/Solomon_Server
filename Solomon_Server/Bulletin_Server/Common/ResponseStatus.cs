@@ -5,17 +5,17 @@ namespace Solomon_Server.Utils
 {
     public class ResponseStatus
     {
-        public static int OK = Convert.ToInt32(HttpStatusCode.OK);
-        public static int NOT_FOUND = Convert.ToInt32(HttpStatusCode.NotFound);
-        public static int UNAUTHORIZED = Convert.ToInt32(HttpStatusCode.Unauthorized);
-        public static int BAD_REQUEST = Convert.ToInt32(HttpStatusCode.BadRequest);
-        public static int INTERNAL_SERVER_ERROR = Convert.ToInt32(HttpStatusCode.InternalServerError);
-        public static int CONFLICT = Convert.ToInt32(HttpStatusCode.Conflict);
-        public static int CREATED = Convert.ToInt32(HttpStatusCode.Created);
+        public static int OK = ConvertToIntHttpStatusCode(HttpStatusCode.OK);
+        public static int NOT_FOUND = ConvertToIntHttpStatusCode(HttpStatusCode.NotFound);
+        public static int UNAUTHORIZED = ConvertToIntHttpStatusCode(HttpStatusCode.Unauthorized);
+        public static int BAD_REQUEST = ConvertToIntHttpStatusCode(HttpStatusCode.BadRequest);
+        public static int INTERNAL_SERVER_ERROR = ConvertToIntHttpStatusCode(HttpStatusCode.InternalServerError);
+        public static int CONFLICT = ConvertToIntHttpStatusCode(HttpStatusCode.Conflict);
+        public static int CREATED = ConvertToIntHttpStatusCode(HttpStatusCode.Created);
 
-        public int ConvertHttpStatusCode()
+        public static int ConvertToIntHttpStatusCode(HttpStatusCode httpStatusCode)
         {
-
+            return Convert.ToInt32(httpStatusCode);
         }
     }
 }

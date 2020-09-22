@@ -14,16 +14,19 @@ namespace Solomon_Server.Services
 
     public class ServiceManager
     {
-        public delegate Response RequestResult(ResponseType type);
-        public static RequestResult Result = delegate (ResponseType type)
+        public delegate Response RequestResult(string apiName, ResponseType type);
+        public static RequestResult Result = delegate (string apiName, ResponseType type)
         {
             switch (type)
             {
                 case ResponseType.OK:
+                    ShowRequestResult(apiName, ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
                     return new Response { message = ResponseMessage.OK, status = ResponseStatus.OK };
                 case ResponseType.BAD_REQUEST:
+                    ShowRequestResult(apiName, ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
                     return new Response { message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST }; ;
                 case ResponseType.INTERNAL_SERVER_ERROR:
+                    ShowRequestResult(apiName, ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
                     return new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
                 default:
                     return null;
