@@ -13,6 +13,8 @@ namespace Solomon_Server.Services
 {
     public partial class SolomonService : IService
     {
+        #region Meal_Service
+        #region Anonymous Method
         public delegate Response<MealInfoModel> MealBadResponse(string apiName, ConTextColor preColor, int status, ConTextColor setColor, string msg);
         MealBadResponse mealBadResponse = delegate (string apiName, ConTextColor preColor, int status, ConTextColor setColor, string msg)
         {
@@ -20,8 +22,9 @@ namespace Solomon_Server.Services
             ServiceManager.ShowRequestResult(apiName, preColor, status, setColor);
             return new Response<MealInfoModel> { data = tempModel, status = status, message = msg };
         };
+        #endregion
 
-        #region Meal_Service
+        #region API Method
         public Response<MealInfoModel> GetMealData()
         {
             string apiName = "MEAL";
@@ -64,6 +67,7 @@ namespace Solomon_Server.Services
                 return mealBadResponse(apiName, ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE, ResponseMessage.BAD_REQUEST);
             }
         }
+        #endregion
         #endregion
     }
 }

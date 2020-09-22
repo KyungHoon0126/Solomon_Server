@@ -15,20 +15,23 @@ namespace Solomon_Server.Services
     {
         DBManager<BulletinModel> bulletinDBManager = new DBManager<BulletinModel>();
 
+        #region Bulletin_Service
         public delegate Response<BulletinsResult> BulletinsBadResponse(ConTextColor preColor, int status, ConTextColor setColor, string msg);
         public delegate Response<BulletinModel> BulletinBadResponse(ConTextColor preColor, int status, ConTextColor setColor, string msg);
 
-        #region Bulletin_Service
+        #region API Method
         public async Task<Response<BulletinsResult>> GetAllBulletins()
         {
             string apiName = "GET ALL BULLETINS";
 
+            #region Anonymous Method
             BulletinsBadResponse bulletinsBadResponse = delegate (ConTextColor preColor, int status, ConTextColor setColor, string msg)
             {
                 List<BulletinModel> tempArr = new List<BulletinModel>();
                 ServiceManager.ShowRequestResult(apiName, preColor, status, setColor);
                 return new Response<BulletinsResult> { data = new BulletinsResult { bulletins = tempArr }, message = msg, status = status };
             };
+            #endregion
 
             if (ComDef.jwtService.IsTokenValid(ServiceManager.GetHeaderValue(WebOperationContext.Current)))
             {
@@ -252,7 +255,7 @@ AND
             {
                 BulletinModel tempModel = new BulletinModel();
                 ServiceManager.ShowRequestResult(apiName, preColor, status, setColor);
-                return new Response<BulletinResult> { data = new BulletinResult { bulletin = tempModel }, message = msg, status = status };
+                return new Response<BulletinModel> { data = tempModel, message = msg, status = status };
             };
 
             if (ComDef.jwtService.IsTokenValid(ServiceManager.GetHeaderValue(WebOperationContext.Current)))
@@ -297,6 +300,7 @@ WHERE
                 return bulletinBadResponse(ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE, ResponseMessage.BAD_REQUEST);
             }
         }
+        #endregion
         #endregion
     }
 }

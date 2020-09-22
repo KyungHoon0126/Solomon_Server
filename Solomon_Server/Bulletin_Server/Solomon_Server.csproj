@@ -150,7 +150,6 @@
     <Compile Include="Common\ResponseMessage.cs" />
     <Compile Include="DataBase\DBConnectionManager.cs" />
     <Compile Include="DataBase\DBManager.cs" />
-    <Compile Include="DataBase\ModelBase.cs" />
     <Compile Include="DataBase\MsSqlDBConnectionManager.cs" />
     <Compile Include="DataBase\MySqlDBConnectionManager.cs" />
     <Compile Include="DataBase\QueryExecutionResult.cs" />
@@ -167,7 +166,6 @@
     <Compile Include="Models\Meal\ResultModel.cs" />
     <Compile Include="Models\Meal\RowModel.cs" />
     <Compile Include="Models\Member\UserModel.cs" />
-    <Compile Include="Results\BulletinResults\BulletinResult.cs" />
     <Compile Include="Results\BulletinResults\BulletinsResult.cs" />
     <Compile Include="Results\CommentResult\CommentsResult.cs" />
     <Compile Include="Results\MemberResult\MemberResult.cs" />

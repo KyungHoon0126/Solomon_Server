@@ -20,8 +20,14 @@ namespace Solomon_Server.Services
         DBManager<UserModel> userDBManager = new DBManager<UserModel>();
 
         #region Member_Service
+        public delegate Response<MemberResult> LoginBadResponse(ConTextColor preColor, int status, ConTextColor setColor, string msg);
+        public delegate Response<UserModel> GetMemberInformationBadResponse(ConTextColor preColor, int status, ConTextColor setColor, string msg);
+
+        #region API Method
         public async Task<Response> SignUp(string id, string pw, string name, string email)
         {
+            string apiName = "SIGN UP";
+
             if (id != null && pw != null && name != null && email != null &&
                     id.Trim().Length > 0 && pw.Trim().Length > 0 && name.Trim().Length > 0 && email.Trim().Length > 0)
             {
@@ -54,36 +60,43 @@ VALUES(
                         if (await userDBManager.InsertAsync(db, insertSql, model) == QueryExecutionResult.SUCCESS)
                         {
                             await userDBManager.IndexSortSqlAsync(db, ServiceManager.GetIndexSortSQL("member_idx", "member_tb"));
-                            ServiceManager.ShowRequestResult("SIGN UP", ConTextColor.LIGHT_GREEN, ResponseStatus.CREATED, ConTextColor.WHITE); ;
+                            ServiceManager.ShowRequestResult(apiName, ConTextColor.LIGHT_GREEN, ResponseStatus.CREATED, ConTextColor.WHITE);
                             return new Response { message = "성공적으로 회원가입이 되었습니다.", status = ResponseStatus.CREATED };
                         }
                         else
                         {
-                            ServiceManager.ShowRequestResult("SIGN UP", ConTextColor.RED, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
-                            return ServiceManager.Result(ResponseType.BAD_REQUEST);
+                            return ServiceManager.Result(apiName, ResponseType.INTERNAL_SERVER_ERROR);
                         }
                     }
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("SIGN UP ERROR : " + e.Message);
-                    ServiceManager.ShowRequestResult("SIGN UP", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
-                    return ServiceManager.Result(ResponseType.INTERNAL_SERVER_ERROR);
+                    Console.WriteLine(apiName + "ERROR : " + e.Message);
+                    return ServiceManager.Result(apiName, ResponseType.INTERNAL_SERVER_ERROR);
                 }
             }
-            else // 검증 오류.
+            else 
             {
-                ServiceManager.ShowRequestResult("SIGN UP", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
-                return ServiceManager.Result(ResponseType.BAD_REQUEST);
+                return ServiceManager.Result(apiName, ResponseType.BAD_REQUEST);
             }
         }
 
         public async Task<Response<MemberResult>> Login(string id, string pw)
         {
-            UserModel tempModel = new UserModel();
-            string tempToken = "";
-            string tempRefreshToken = "";
-            
+            string apiName = "LOGIN";
+
+            #region Anonymous Method
+            LoginBadResponse memberBadResponse = delegate (ConTextColor preColor, int status, ConTextColor setColor, string msg)
+            {
+                UserModel tempModel = new UserModel();
+                string tempToken = "";
+                string tempRefreshToken = "";
+
+                ServiceManager.ShowRequestResult(apiName, preColor, status, setColor);
+                return new Response<MemberResult> { data = new MemberResult { token = tempToken, refreshToken = tempRefreshToken, member = tempModel }, status = status, message = msg };
+            };
+            #endregion
+
             if (id != null && pw != null && id.Trim().Length > 0 && pw.Trim().Length > 0)
             {
                 try
@@ -130,33 +143,39 @@ AND
                                 Console.WriteLine("Login Eamil : " + claims.FirstOrDefault(x => x.Type.Equals(ClaimTypes.Email)).Value);
 
                                 ServiceManager.ShowRequestResult("LOGIN", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
-                                return new Response<MemberResult> { data = new MemberResult { token = token, refreshToken = tempRefreshToken, member = user }, message = ResponseMessage.OK, status = ResponseStatus.OK };
+                                return new Response<MemberResult> { data = new MemberResult { token = token, refreshToken = "", member = user }, message = ResponseMessage.OK, status = ResponseStatus.OK };
                             }
                         }
                         else
                         {
-                            ServiceManager.ShowRequestResult("LOGIN", ConTextColor.RED, ResponseStatus.UNAUTHORIZED, ConTextColor.WHITE);
-                            return new Response<MemberResult> { data = new MemberResult { token = tempToken, refreshToken = tempRefreshToken, member = tempModel }, message = ResponseMessage.UNAUTHORIZED, status = ResponseStatus.UNAUTHORIZED };
+                            return memberBadResponse(ConTextColor.RED, ResponseStatus.UNAUTHORIZED, ConTextColor.WHITE, ResponseMessage.UNAUTHORIZED);
                         }
                     }
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("LOGIN ERROR : " + e.Message);
-                    ServiceManager.ShowRequestResult("LOGIN", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
-                    return new Response<MemberResult> { data = new MemberResult { token = tempToken, refreshToken = tempRefreshToken, member = tempModel }, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
+                    Console.WriteLine(apiName + " ERROR : " + e.Message);
+                    return memberBadResponse(ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE, ResponseMessage.INTERNAL_SERVER_ERROR);
                 }
             }
-            else // 검증 오류.
+            else 
             {
-                ServiceManager.ShowRequestResult("LOGIN", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
-                return new Response<MemberResult> { data = new MemberResult { token = tempToken, refreshToken = tempRefreshToken, member = tempModel }, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
+                return memberBadResponse(ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE, ResponseMessage.BAD_REQUEST);
             }
         }
 
         public async Task<Response<UserModel>> GetMemberInformation(string member_idx)
         {
-            UserModel tempModel = new UserModel();
+            string apiName = "GET MEMBER INFORMATION";
+
+            #region Anonymous Method
+            GetMemberInformationBadResponse getMemberInformationBadResponse = delegate (ConTextColor preColor, int status, ConTextColor setColor, string msg)
+            {
+                UserModel tempModel = new UserModel();
+                ServiceManager.ShowRequestResult(apiName, ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
+                return new Response<UserModel> { data = tempModel, message = msg, status = status };
+            };
+            #endregion
 
             if (member_idx != null && member_idx.Trim().Length > 0)
             {
@@ -180,29 +199,27 @@ WHERE
 
                         if (user != null)
                         {
-                            ServiceManager.ShowRequestResult("GET SPECIFIC MEMBER INFORMATION", ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
+                            ServiceManager.ShowRequestResult(apiName, ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
                             return new Response<UserModel> { data = user, message = ResponseMessage.OK, status = ResponseStatus.OK };
                         }
                         else
                         {
-                            ServiceManager.ShowRequestResult("GET SPECIFIC MEMBER INFORMATION", ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE);
-                            return new Response<UserModel> { data = tempModel, message = "회원 정보가 존재하지 않습니다.", status = ResponseStatus.NOT_FOUND };
+                            return getMemberInformationBadResponse(ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE, "회원 정보가 존재하지 않습니다.");
                         }
                     }
                 }
                 catch (Exception e)
                 {
-                    Debug.WriteLine("GET MEMBER INFORMATION ERROR : " + e.Message);
-                    ServiceManager.ShowRequestResult("GET SPECIFIC MEMBER INFORMATION", ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
-                    return new Response<UserModel> { data = tempModel, message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
+                    Debug.WriteLine(apiName + " ERROR : " + e.Message);
+                    return getMemberInformationBadResponse(ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE, ResponseMessage.INTERNAL_SERVER_ERROR);
                 }
             }
             else
             {
-                ServiceManager.ShowRequestResult("GET SPECIFIC MEMBER INFORMATION", ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE);
-                return new Response<UserModel> { data = tempModel, message = ResponseMessage.BAD_REQUEST, status = ResponseStatus.BAD_REQUEST };
+                return getMemberInformationBadResponse(ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE, ResponseMessage.BAD_REQUEST);
             }
         }
+        #endregion
         #endregion
     }
 }

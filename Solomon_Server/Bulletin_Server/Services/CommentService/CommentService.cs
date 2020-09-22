@@ -15,6 +15,8 @@ namespace Solomon_Server.Services
     {
         DBManager<CommentModel> commentDBManager = new DBManager<CommentModel>();
 
+        #region Bulletin_Comment_Service
+        #region Anonymous Method
         public delegate Response<CommentsResult> CommentsBadResponse(string apiName, ConTextColor preColor, int status, ConTextColor setColor, string msg);
         CommentsBadResponse commentsBadResponse = delegate (string apiName, ConTextColor preColor, int status, ConTextColor setColor, string msg)
         {
@@ -22,8 +24,9 @@ namespace Solomon_Server.Services
             ServiceManager.ShowRequestResult(apiName, preColor, status, setColor);
             return new Response<CommentsResult> { data = new CommentsResult { comments = tempArr }, message = msg, status = status };
         };
+        #endregion
 
-        #region Bulletin_Comment_Service
+        #region API Method
         public async Task<Response<CommentsResult>> GetAllComments()
         {
             string apiName = "GET ALL COMMENTS";
@@ -292,6 +295,7 @@ WHERE
                 return commentsBadResponse(apiName, ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE, ResponseMessage.BAD_REQUEST);
             }
         }
+        #endregion
         #endregion
     }
 }
