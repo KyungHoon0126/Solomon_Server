@@ -10,6 +10,7 @@ namespace Solomon_Server.Services
         OK,
         BAD_REQUEST,
         INTERNAL_SERVER_ERROR,
+        CREATED
     }
 
     public class ServiceManager
@@ -28,6 +29,9 @@ namespace Solomon_Server.Services
                 case ResponseType.INTERNAL_SERVER_ERROR:
                     ShowRequestResult(apiName, ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE);
                     return new Response { message = ResponseMessage.INTERNAL_SERVER_ERROR, status = ResponseStatus.INTERNAL_SERVER_ERROR };
+                case ResponseType.CREATED:
+                    ShowRequestResult(apiName, ConTextColor.LIGHT_GREEN, ResponseStatus.CREATED, ConTextColor.WHITE);
+                    return new Response { message = ResponseMessage.CREATED, status = ResponseStatus.CREATED };
                 default:
                     return null;
             }

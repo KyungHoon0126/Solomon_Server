@@ -109,7 +109,7 @@ VALUES(
                             if (await bulletinDBManager.InsertAsync(db, insertSql, model) == QueryExecutionResult.SUCCESS)
                             {
                                 await bulletinDBManager.IndexSortSqlAsync(db, ServiceManager.GetIndexSortSQL("bulletin_idx", "bulletin_tb"));
-                                return ServiceManager.Result(apiName, ResponseType.OK);
+                                return ServiceManager.Result(apiName, ResponseType.CREATED);
                             }
                             else
                             {

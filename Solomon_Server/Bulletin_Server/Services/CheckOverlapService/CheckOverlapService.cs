@@ -12,7 +12,6 @@ namespace Solomon_Server.Services
     {
         DBManager<UserModel> checkOverlapDBManager = new DBManager<UserModel>();
 
-
         #region CheckOverlap_Service
         public delegate Response CheckOverLapResponse(string apiName, ConTextColor preColor, int status, ConTextColor setColor, string msg);
 
