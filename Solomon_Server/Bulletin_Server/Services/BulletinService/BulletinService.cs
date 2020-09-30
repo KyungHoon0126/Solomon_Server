@@ -49,7 +49,7 @@ SELECT
 FROM
     bulletin_tb
 ";
-                        await bulletinDBManager.IndexSortSqlAsync(db, ServiceManager.GetIndexSortSQL("bulletin_idx", "bulletin_tb"));
+                        // await bulletinDBManager.IndexSortSqlAsync(db, ServiceManager.GetIndexSortSQL("bulletin_idx", "bulletin_tb"));
                         bulletins = await bulletinDBManager.GetListAsync(db, selectSql, "");
 
                         if (bulletins != null && bulletins.Count > 0)
@@ -108,7 +108,7 @@ VALUES(
 );";
                             if (await bulletinDBManager.InsertAsync(db, insertSql, model) == QueryExecutionResult.SUCCESS)
                             {
-                                await bulletinDBManager.IndexSortSqlAsync(db, ServiceManager.GetIndexSortSQL("bulletin_idx", "bulletin_tb"));
+                                // await bulletinDBManager.IndexSortSqlAsync(db, ServiceManager.GetIndexSortSQL("bulletin_idx", "bulletin_tb"));
                                 return ServiceManager.Result(apiName, ResponseType.CREATED);
                             }
                             else
@@ -162,7 +162,7 @@ AND
 ;";
                             if (await bulletinDBManager.DeleteAsync(db, deleteSql, model) == QueryExecutionResult.SUCCESS)
                             {
-                                await bulletinDBManager.IndexSortSqlAsync(db, ServiceManager.GetIndexSortSQL("bulletin_idx", "bulletin_tb"));
+                                // await bulletinDBManager.IndexSortSqlAsync(db, ServiceManager.GetIndexSortSQL("bulletin_idx", "bulletin_tb"));
                                 return ServiceManager.Result(apiName, ResponseType.OK);
                             }
                             else
@@ -221,7 +221,7 @@ AND
 ;";
                             if (await bulletinDBManager.UpdateAsync(db, updateSql, model) == QueryExecutionResult.SUCCESS)
                             {
-                                await bulletinDBManager.IndexSortSqlAsync(db, updateSql);
+                                // await bulletinDBManager.IndexSortSqlAsync(db, updateSql);
                                 return ServiceManager.Result(apiName, ResponseType.OK);
                             }
                             else
