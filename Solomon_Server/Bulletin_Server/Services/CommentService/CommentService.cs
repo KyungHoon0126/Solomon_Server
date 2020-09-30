@@ -46,7 +46,7 @@ SELECT
 FROM
     comment_tb
 ";
-                        await bulletinDBManager.IndexSortSqlAsync(db, ServiceManager.GetIndexSortSQL("comment_idx", "comment_tb"));
+                        // await bulletinDBManager.IndexSortSqlAsync(db, ServiceManager.GetIndexSortSQL("comment_idx", "comment_tb"));
                         comments = await commentDBManager.GetListAsync(db, selectSql, "");
 
                         if (comments != null && comments.Count > 0)
@@ -105,7 +105,7 @@ VALUES(
 );";
                             if (await commentDBManager.InsertAsync(db, insertSql, model) == QueryExecutionResult.SUCCESS)
                             {
-                                await commentDBManager.IndexSortSqlAsync(db, ServiceManager.GetIndexSortSQL("comment_idx", "comment_tb"));
+                                // await commentDBManager.IndexSortSqlAsync(db, ServiceManager.GetIndexSortSQL("comment_idx", "comment_tb"));
                                 return ServiceManager.Result(apiName, ResponseType.OK);
                             }
                             else
@@ -159,7 +159,7 @@ AND
 ;";
                             if (await bulletinDBManager.DeleteAsync(db, deleteSql, model) == QueryExecutionResult.SUCCESS)
                             {
-                                await bulletinDBManager.IndexSortSqlAsync(db, ServiceManager.GetIndexSortSQL("comment_idx", "comment_tb"));
+                                // await bulletinDBManager.IndexSortSqlAsync(db, ServiceManager.GetIndexSortSQL("comment_idx", "comment_tb"));
                                 return ServiceManager.Result(apiName, ResponseType.OK);
                             }
                             else

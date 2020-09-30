@@ -59,7 +59,7 @@ VALUES(
 
                         if (await userDBManager.InsertAsync(db, insertSql, model) == QueryExecutionResult.SUCCESS)
                         {
-                            await userDBManager.IndexSortSqlAsync(db, ServiceManager.GetIndexSortSQL("member_idx", "member_tb"));
+                            // await userDBManager.IndexSortSqlAsync(db, ServiceManager.GetIndexSortSQL("member_idx", "member_tb"));
                             ServiceManager.ShowRequestResult(apiName, ConTextColor.LIGHT_GREEN, ResponseStatus.CREATED, ConTextColor.WHITE);
                             return new Response { message = "성공적으로 회원가입이 되었습니다.", status = ResponseStatus.CREATED };
                         }
