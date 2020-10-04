@@ -27,46 +27,54 @@ namespace Solomon_Server.Services
         #endregion
 
         #region API Method
-        public async Task<Response<CommentsResult>> GetAllComments()
+        public async Task<Response<CommentsResult>> GetAllComments(string bulletin_idx)
         {
             string apiName = "GET ALL COMMENTS";
 
             if (ComDef.jwtService.IsTokenValid(ServiceManager.GetHeaderValue(WebOperationContext.Current)))
             {
-                try
+                if (bulletin_idx.Length > 0 && bulletin_idx != null)
                 {
-                    List<CommentModel> comments = new List<CommentModel>();
-                    using (IDbConnection db = GetConnection())
+                    try
                     {
-                        db.Open();
+                        List<CommentModel> comments = new List<CommentModel>();
+                        using (IDbConnection db = GetConnection())
+                        {
+                            db.Open();
 
-                        string selectSql = @"
+                            string selectSql = $@"
 SELECT
     *
 FROM
     comment_tb
+WHERE
+    bulletin_idx = '{bulletin_idx}'
 ";
-                        // await bulletinDBManager.IndexSortSqlAsync(db, ServiceManager.GetIndexSortSQL("comment_idx", "comment_tb"));
-                        comments = await commentDBManager.GetListAsync(db, selectSql, "");
+                            comments = await commentDBManager.GetListAsync(db, selectSql, "");
 
-                        if (comments != null && comments.Count > 0)
-                        {
-                            ServiceManager.ShowRequestResult(apiName, ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
-                            return new Response<CommentsResult> { data = new CommentsResult { comments = comments }, message = ResponseMessage.OK, status = ResponseStatus.OK };
-                        }
-                        else
-                        {
-                            return commentsBadResponse(apiName, ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE, "댓글이 존재하지 않습니다.");
+                            if (comments != null && comments.Count > 0)
+                            {
+                                ServiceManager.ShowRequestResult(apiName, ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
+                                return new Response<CommentsResult> { data = new CommentsResult { comments = comments }, message = ResponseMessage.OK, status = ResponseStatus.OK };
+                            }
+                            else
+                            {
+                                return commentsBadResponse(apiName, ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE, "댓글이 존재하지 않습니다.");
+                            }
                         }
                     }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(apiName + " ERROR : " + e.Message);
+                        return commentsBadResponse(apiName, ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE, ResponseMessage.INTERNAL_SERVER_ERROR);
+                    }
                 }
-                catch (Exception e)
+                else
                 {
-                    Console.WriteLine(apiName + " ERROR : " + e.Message);
-                    return commentsBadResponse(apiName, ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE, ResponseMessage.INTERNAL_SERVER_ERROR);
+                    return commentsBadResponse(apiName, ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE, ResponseMessage.BAD_REQUEST);
                 }
             }
-            else 
+            else
             {
                 return commentsBadResponse(apiName, ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE, ResponseMessage.BAD_REQUEST);
             }
@@ -240,59 +248,6 @@ AND
             else
             {
                 return ServiceManager.Result(apiName, ResponseType.BAD_REQUEST);
-            }
-        }
-
-        public async Task<Response<CommentsResult>> GetSpecificComments(string bulletin_idx)
-        {
-            string apiName = "GET SPECIFIC COMMENTS";
-
-            if (ComDef.jwtService.IsTokenValid(ServiceManager.GetHeaderValue(WebOperationContext.Current)))
-            {
-                if (bulletin_idx.Length > 0 && bulletin_idx != null)
-                {
-                    try
-                    {
-                        List<CommentModel> comments = new List<CommentModel>();
-                        using (IDbConnection db = GetConnection())
-                        {
-                            db.Open();
-
-                            string selectSql = $@"
-SELECT
-    *
-FROM
-    comment_tb
-WHERE
-    bulletin_idx = '{bulletin_idx}'
-";
-                            comments = await commentDBManager.GetListAsync(db, selectSql, "");
-
-                            if (comments != null && comments.Count > 0)
-                            {
-                                ServiceManager.ShowRequestResult(apiName, ConTextColor.LIGHT_GREEN, ResponseStatus.OK, ConTextColor.WHITE);
-                                return new Response<CommentsResult> { data = new CommentsResult { comments = comments }, message = ResponseMessage.OK, status = ResponseStatus.OK };
-                            }
-                            else
-                            {
-                                return commentsBadResponse(apiName, ConTextColor.RED, ResponseStatus.NOT_FOUND, ConTextColor.WHITE, "댓글이 존재하지 않습니다.");
-                            }
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(apiName + " ERROR : " + e.Message);
-                        return commentsBadResponse(apiName, ConTextColor.PURPLE, ResponseStatus.INTERNAL_SERVER_ERROR, ConTextColor.WHITE, ResponseMessage.INTERNAL_SERVER_ERROR);
-                    }
-                }
-                else
-                {
-                    return commentsBadResponse(apiName, ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE, ResponseMessage.BAD_REQUEST);
-                }
-            }
-            else
-            {
-                return commentsBadResponse(apiName, ConTextColor.RED, ResponseStatus.BAD_REQUEST, ConTextColor.WHITE, ResponseMessage.BAD_REQUEST);
             }
         }
         #endregion
