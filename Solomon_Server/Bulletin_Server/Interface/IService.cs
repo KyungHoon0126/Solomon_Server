@@ -126,15 +126,15 @@ namespace Solomon_Server
 
         #region Bulletin_Comment_Service
         /// <summary>
-        /// 전체 댓글 조회
+        /// 특정 게시물 전체 댓글 조회
         /// Headers : token(string)
         /// </summary>
-        /// <returns>Comments</returns>
+        /// <param name="bulletin_idx", 게시글 idx></param>
+        /// <returns></returns>
         [OperationContract]
         [WebInvoke(Method = "GET", ResponseFormat = WebMessageFormat.Json,
-                   BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/bulletin/comment")]
-        [return: MessageParameter(Name = "Comment")]
-        Task<Response<CommentsResult>> GetAllComments();
+                   BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/bulletin/comment/{bulletin_idx}")]
+        Task<Response<CommentsResult>> GetAllComments(string bulletin_idx);
 
         /// <summary>
         /// 댓글 작성
@@ -176,17 +176,6 @@ namespace Solomon_Server
                    BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/bulletin/comment")]
         [return: MessageParameter(Name = "Put_Comment")]
         Task<Response> PutComment(string content, string writer, int comment_idx);
-
-        /// <summary>
-        /// 특정 게시물 전체 댓글 조회
-        /// Headers : token(string)
-        /// </summary>
-        /// <param name="bulletin_idx", 게시글 idx></param>
-        /// <returns></returns>
-        [OperationContract]
-        [WebInvoke(Method = "GET", ResponseFormat = WebMessageFormat.Json,
-                   BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/bulletin/comment/{bulletin_idx}")]
-        Task<Response<CommentsResult>> GetSpecificComments(string bulletin_idx);
         #endregion
 
         #region CheckOverlap_Service
