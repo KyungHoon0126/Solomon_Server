@@ -114,7 +114,7 @@ VALUES(
                             if (await commentDBManager.InsertAsync(db, insertSql, model) == QueryExecutionResult.SUCCESS)
                             {
                                 // await commentDBManager.IndexSortSqlAsync(db, ServiceManager.GetIndexSortSQL("comment_idx", "comment_tb"));
-                                return ServiceManager.Result(apiName, ResponseType.OK);
+                                return ServiceManager.Result(apiName, ResponseType.CREATED);
                             }
                             else
                             {
@@ -163,7 +163,7 @@ DELETE FROM
 WHERE
     writer = '{writer}'
 AND
-    idx = '{comment_idx}'    
+    comment_idx = '{comment_idx}'    
 ;";
                             if (await bulletinDBManager.DeleteAsync(db, deleteSql, model) == QueryExecutionResult.SUCCESS)
                             {
