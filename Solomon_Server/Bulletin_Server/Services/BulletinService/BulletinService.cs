@@ -152,16 +152,42 @@ VALUES(
                             model.bulletin_idx = bulletin_idx;
                             model.writer = writer;
 
-                            string deleteSql = $@"
+                            string deleteBulletinSql = $@"
 DELETE FROM
     bulletin_tb
 WHERE
     writer = '{writer}'
 AND
-    idx = '{bulletin_idx}'    
+    bulletin_idx = '{bulletin_idx}'    
 ;";
-                            if (await bulletinDBManager.DeleteAsync(db, deleteSql, model) == QueryExecutionResult.SUCCESS)
+
+                            string selectCommentSql = $@"
+SELECT
+    *
+FROM
+    comment_tb
+WHERE
+    bulletin_idx = '{bulletin_idx}'
+";
+
+                            string deleteCommentSql = $@"
+DELETE FROM
+    comment_tb
+WHERE
+    bulletin_idx = '{bulletin_idx}'
+;";
+
+                            if (await bulletinDBManager.DeleteAsync(db, deleteBulletinSql, model) == QueryExecutionResult.SUCCESS)
                             {
+                                var commentItems = await commentDBManager.GetListAsync(db, selectCommentSql, "");
+                                if (commentItems.Count > 0)
+                                {
+                                    for (int i = 0; i < commentItems.Count; i++)
+                                    {
+                                        await commentDBManager.DeleteAsync(db, deleteCommentSql, commentItems[i]);
+                                    }
+                                }
+
                                 // await bulletinDBManager.IndexSortSqlAsync(db, ServiceManager.GetIndexSortSQL("bulletin_idx", "bulletin_tb"));
                                 return ServiceManager.Result(apiName, ResponseType.OK);
                             }
