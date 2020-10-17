@@ -75,14 +75,17 @@ FROM
             }
         }
 
-        public async Task<Response> WriteBulletin(string title, string content, string writer)
+        public async Task<Response> WriteBulletin(string title, string content, string writer, string category)
         {
             string apiName = "WRITE BULLETIN";
 
             if (ComDef.jwtService.IsTokenValid(ServiceManager.GetHeaderValue(WebOperationContext.Current)))
             {
-                if (title != null && content != null && writer != null &&
-                        title.Trim().Length > 0 && content.Trim().Length > 0 && writer.Trim().Length > 0)
+                var strLengths = ComUtil.GetStringLengths(title, content, writer, category);
+
+                if (title != null && content != null && writer != null && category != null &&
+                        
+                        strLengths[0] > 0 && strLengths[1] > 0 && strLengths[2] > 0 && strLengths[3] > 0)
                 {
                     try
                     {
@@ -94,17 +97,20 @@ FROM
                             model.title = title;
                             model.content = content;
                             model.writer = writer;
+                            model.category = category;
 
                             string insertSql = @"
 INSERT INTO bulletin_tb(
     title,
     content,
-    writer
+    writer,
+    category
 )
 VALUES(
     @title,
     @content,
-    @writer
+    @writer,
+    @category
 );";
                             if (await bulletinDBManager.InsertAsync(db, insertSql, model) == QueryExecutionResult.SUCCESS)
                             {
@@ -140,7 +146,7 @@ VALUES(
 
             if (ComDef.jwtService.IsTokenValid(ServiceManager.GetHeaderValue(WebOperationContext.Current)))
             {
-                if (bulletin_idx.ToString() != null && bulletin_idx.ToString().Length > 0 && writer != null && writer.Length > 0)
+                if (bulletin_idx.ToString() != null && bulletin_idx.ToString().Length > 0 && writer != null && writer.Trim().Length > 0)
                 {
                     try
                     {
@@ -214,13 +220,16 @@ WHERE
             }
         }
 
-        public async Task<Response> PutBulletin(string title, string content, string writer, int bulletin_idx)
+        public async Task<Response> PutBulletin(string title, string content, string writer, string category, int bulletin_idx)
         {
             string apiName = "PUT BULLETIN";
 
             if (ComDef.jwtService.IsTokenValid(ServiceManager.GetHeaderValue(WebOperationContext.Current)))
             {
-                if (title != null && title.Trim().Length > 0 && content != null && title.Trim().Length > 0 && bulletin_idx.ToString().Length > 0)
+                var strLengths = ComUtil.GetStringLengths(title, content, writer);
+
+                if (title != null && content != null && writer != null && category != null
+                        && strLengths[0] > 0 && strLengths[1] > 0 && strLengths[2] > 0 && bulletin_idx.ToString().Length > 0)
                 {
                     try
                     {
@@ -233,13 +242,15 @@ WHERE
                             model.content = content;
                             model.writer = writer;
                             model.bulletin_idx = bulletin_idx;
+                            model.category = category;
 
                             string updateSql = $@"
 UPDATE 
     bulletin_tb
 SET
     title = '{title}',
-    content = '{content}'
+    content = '{content}',
+    category = '{category}'
 WHERE
     writer = '{writer}'
 AND

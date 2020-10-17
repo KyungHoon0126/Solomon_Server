@@ -7,5 +7,6 @@
         public string content { get; set; }
         public string writer { get; set; }
         public string written_time { get; set; }
+        public string category { get; set; }
     }
 }

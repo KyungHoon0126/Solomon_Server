@@ -24,12 +24,14 @@ namespace Solomon_Server.Services
         public delegate Response<UserModel> GetMemberInformationBadResponse(ConTextColor preColor, int status, ConTextColor setColor, string msg);
 
         #region API Method
-        public async Task<Response> SignUp(string id, string pw, string name, string email)
+        public async Task<Response> SignUp(string id, string pw, string name, string email, int birth_year)
         {
             string apiName = "SIGN UP";
 
-            if (id != null && pw != null && name != null && email != null &&
-                    id.Trim().Length > 0 && pw.Trim().Length > 0 && name.Trim().Length > 0 && email.Trim().Length > 0)
+            var signupArgs = ComUtil.GetStringLengths(id, pw, name, email);
+
+            if (id != null && pw != null && name != null && email != null && birth_year.ToString() != null &&
+                    signupArgs[0] > 0 && signupArgs[1] > 0 && signupArgs[2] > 0 && signupArgs[3] > 0 && birth_year.ToString().Length > 0)
             {
                 try
                 {
@@ -42,19 +44,23 @@ namespace Solomon_Server.Services
                         model.pw = pw;
                         model.name = name;
                         model.email = email;
+                        model.birth_year = birth_year;
+                        
 
                         string insertSql = @"
 INSERT INTO member_tb(
     id,
     pw,
     name,
-    email
+    email,
+    birth_year
 ) 
 VALUES(
     @id,
     @pw,
     @name,
-    @email
+    @email,
+    @birth_year
 );";
 
                         if (await userDBManager.InsertAsync(db, insertSql, model) == QueryExecutionResult.SUCCESS)

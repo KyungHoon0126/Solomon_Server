@@ -38,7 +38,7 @@ namespace Solomon_Server
         [OperationContract]
         [WebInvoke(Method = "POST", ResponseFormat = WebMessageFormat.Json,
                    BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/auth/register")]
-        Task<Response> SignUp(string id, string pw, string name, string email);
+        Task<Response> SignUp(string id, string pw, string name, string email, int birth_year);
 
 
         /// <summary>
@@ -85,7 +85,7 @@ namespace Solomon_Server
         [OperationContract]
         [WebInvoke(Method = "POST", ResponseFormat = WebMessageFormat.Json,
                    BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/bulletin/post")]
-        Task<Response> WriteBulletin(string title, string content, string writer);
+        Task<Response> WriteBulletin(string title, string content, string writer, string category);
 
         /// <summary>
         /// 게시글 삭제
@@ -110,7 +110,7 @@ namespace Solomon_Server
         [OperationContract]
         [WebInvoke(Method = "PUT", ResponseFormat = WebMessageFormat.Json,
                    BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/bulletin/post")]
-        Task<Response> PutBulletin(string title, string content, string writer, int bulletin_idx);
+        Task<Response> PutBulletin(string title, string content, string writer, string cateogry, int bulletin_idx);
 
         /// <summary>
         /// 특정 게시물 조회
