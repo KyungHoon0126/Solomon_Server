@@ -24,14 +24,14 @@ namespace Solomon_Server.Services
         public delegate Response<UserModel> GetMemberInformationBadResponse(ConTextColor preColor, int status, ConTextColor setColor, string msg);
 
         #region API Method
-        public async Task<Response> SignUp(string id, string pw, string name, string email, int birth_year)
+        public async Task<Response> SignUp(string id, string pw, string name, string email, int birth_year, string gender)
         {
             string apiName = "SIGN UP";
 
-            var signupArgs = ComUtil.GetStringLengths(id, pw, name, email);
+            var signupArgs = ComUtil.GetStringLengths(id, pw, name, email, gender);
 
-            if (id != null && pw != null && name != null && email != null && birth_year.ToString() != null &&
-                    signupArgs[0] > 0 && signupArgs[1] > 0 && signupArgs[2] > 0 && signupArgs[3] > 0 && birth_year.ToString().Length > 0)
+            if (id != null && pw != null && name != null && email != null && birth_year.ToString() != null && gender != null &&
+                    signupArgs[0] > 0 && signupArgs[1] > 0 && signupArgs[2] > 0 && signupArgs[3] > 0 && birth_year.ToString().Length > 0 && signupArgs[4] > 0)
             {
                 try
                 {
@@ -103,7 +103,9 @@ VALUES(
             };
             #endregion
 
-            if (id != null && pw != null && id.Trim().Length > 0 && pw.Trim().Length > 0)
+            var loginArgs = ComUtil.GetStringLengths(id, pw);
+
+            if (id != null && pw != null && loginArgs[0] > 0 && loginArgs[1] > 0)
             {
                 try
                 {

@@ -86,8 +86,10 @@ WHERE
 
             if (ComDef.jwtService.IsTokenValid(ServiceManager.GetHeaderValue(WebOperationContext.Current)))
             {
+                var writeArgs = ComUtil.GetStringLengths(writer, content);
+
                 if (bulletin_idx.ToString().Length > 0 && writer != null && content != null &&
-                        writer.Trim().Length > 0 && content.Trim().Length > 0)
+                        writeArgs[0] > 0 && writeArgs[1] > 0)
                 {
                     try
                     {
@@ -199,8 +201,11 @@ AND
 
             if (ComDef.jwtService.IsTokenValid(ServiceManager.GetHeaderValue(WebOperationContext.Current)))
             {
-                if (content != null && content.Trim().Length > 0 && writer != null &&
-                        writer.Trim().Length > 0 && comment_idx.ToString().Length > 0)
+                var putArgs = ComUtil.GetStringLengths(content, writer);
+
+                if (content != null && writer != null &&
+                        putArgs[1] > 0 && putArgs[0] > 0 &&
+                            comment_idx.ToString().Length > 0)
                 {
                     try
                     {
