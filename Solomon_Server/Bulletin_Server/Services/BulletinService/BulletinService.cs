@@ -81,11 +81,11 @@ FROM
 
             if (ComDef.jwtService.IsTokenValid(ServiceManager.GetHeaderValue(WebOperationContext.Current)))
             {
-                var strLengths = ComUtil.GetStringLengths(title, content, writer, category);
+                var writeArgs = ComUtil.GetStringLengths(title, content, writer, category);
 
                 if (title != null && content != null && writer != null && category != null &&
                         
-                        strLengths[0] > 0 && strLengths[1] > 0 && strLengths[2] > 0 && strLengths[3] > 0)
+                        writeArgs[0] > 0 && writeArgs[1] > 0 && writeArgs[2] > 0 && writeArgs[3] > 0)
                 {
                     try
                     {
@@ -226,10 +226,10 @@ WHERE
 
             if (ComDef.jwtService.IsTokenValid(ServiceManager.GetHeaderValue(WebOperationContext.Current)))
             {
-                var strLengths = ComUtil.GetStringLengths(title, content, writer);
+                var putArgs = ComUtil.GetStringLengths(title, content, writer);
 
                 if (title != null && content != null && writer != null && category != null
-                        && strLengths[0] > 0 && strLengths[1] > 0 && strLengths[2] > 0 && bulletin_idx.ToString().Length > 0)
+                        && putArgs[0] > 0 && putArgs[1] > 0 && putArgs[2] > 0 && bulletin_idx.ToString().Length > 0)
                 {
                     try
                     {

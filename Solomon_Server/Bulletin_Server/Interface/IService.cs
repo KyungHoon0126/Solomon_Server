@@ -38,7 +38,7 @@ namespace Solomon_Server
         [OperationContract]
         [WebInvoke(Method = "POST", ResponseFormat = WebMessageFormat.Json,
                    BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/auth/register")]
-        Task<Response> SignUp(string id, string pw, string name, string email, int birth_year);
+        Task<Response> SignUp(string id, string pw, string name, string email, int birth_year, string gender);
 
 
         /// <summary>
