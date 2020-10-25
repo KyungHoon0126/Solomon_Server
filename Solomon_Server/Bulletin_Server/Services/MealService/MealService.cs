@@ -35,8 +35,7 @@ namespace Solomon_Server.Services
                 webClient.Headers["Content-Type"] = "application/json";
                 webClient.Encoding = Encoding.UTF8;
 
-                string html = webClient.DownloadString("https://open.neis.go.kr/hub/mealServiceDietInfo?ATPT_OFCDC_SC_CODE=D10&SD_SCHUL_CODE=7240393&MLSV_YMD="
-                                                        + DateTime.Now.ToString("yyyyMM") + "&type=json&KEY=9b89605504b946bfab0c06c0ceb0a69a");
+                string html = webClient.DownloadString("");
                 hap.HtmlDocument document = new hap.HtmlDocument();
                 document.LoadHtml(html);
 
