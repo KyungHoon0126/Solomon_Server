@@ -45,6 +45,7 @@ namespace Solomon_Server.Services
                         model.name = name;
                         model.email = email;
                         model.birth_year = birth_year;
+                        model.gender = gender;
                         
 
                         string insertSql = @"
@@ -53,14 +54,16 @@ INSERT INTO member_tb(
     pw,
     name,
     email,
-    birth_year
+    birth_year,
+    gender
 ) 
 VALUES(
     @id,
     @pw,
     @name,
     @email,
-    @birth_year
+    @birth_year,
+    @gender
 );";
 
                         if (await userDBManager.InsertAsync(db, insertSql, model) == QueryExecutionResult.SUCCESS)

@@ -7,6 +7,7 @@
         public string name { get; set; }
         public string email { get; set; }
         public int birth_year { get; set; }
+        public string gender { get; set; }
     }
 
     public class MemberModel : UserModel

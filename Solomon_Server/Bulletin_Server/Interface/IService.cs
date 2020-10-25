@@ -13,7 +13,6 @@ namespace Solomon_Server
     [ServiceContract]
     public partial interface IService
     {
-        // TODO : 급식 반환 형태 고치기.
         #region Meal_Service
         /// <summary>
         /// 급식 조회
