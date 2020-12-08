@@ -175,7 +175,7 @@ AND
             }
         }
 
-        public async Task<Response<UserModel>> GetMemberInformation(string member_idx)
+        public async Task<Response<UserModel>> GetMemberInformation(string id)
         {
             string apiName = "GET MEMBER INFORMATION";
 
@@ -188,7 +188,7 @@ AND
             };
             #endregion
 
-            if (member_idx != null && member_idx.Trim().Length > 0)
+            if (id != null && id.Trim().Length > 0)
             {
                 try
                 {
@@ -204,9 +204,9 @@ SELECT
 FROM
     member_tb
 WHERE
-    member_idx = '{member_idx}'
+    id = '{id}'
 ";
-                        user = await userDBManager.GetSingleDataAsync(db, selectSql, member_idx);
+                        user = await userDBManager.GetSingleDataAsync(db, selectSql, id);
 
                         if (user != null)
                         {
