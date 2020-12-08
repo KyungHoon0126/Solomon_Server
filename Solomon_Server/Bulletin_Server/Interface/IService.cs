@@ -58,8 +58,8 @@ namespace Solomon_Server
         /// <returns></returns>
         [OperationContract]
         [WebInvoke(Method = "GET", ResponseFormat = WebMessageFormat.Json,
-                   BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/member/{member_idx}")]
-        Task<Response<UserModel>> GetMemberInformation(string member_idx);
+                   BodyStyle = WebMessageBodyStyle.WrappedRequest, UriTemplate = "/member/{id}")]
+        Task<Response<UserModel>> GetMemberInformation(string id);
         #endregion
 
         #region Bulletin_Service
